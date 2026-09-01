@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>2 sec / 2 ans</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#0A0A0E; --surface:#15151C; --surface2:#1E1E28; --surface3:#26262F;
+  --text:#F5F3EF; --muted:#96939F; --violet:#7C6CF0; --coral:#FF5470; --teal:#38D9C9; --amber:#FFB454; --line:#2C2C36;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{ margin:0; background:radial-gradient(circle at 50% 0%, #17151f 0%, #0A0A0E 55%); color:var(--text);
+  font-family:'Inter',system-ui,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; overflow:hidden; }
+.disp{font-family:'Space Grotesk',system-ui,sans-serif;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+#stage{ width:100%; max-width:430px; height:100vh; max-height:900px; background:var(--surface); position:relative;
+  overflow:hidden; border-left:1px solid var(--line); border-right:1px solid var(--line); display:flex; flex-direction:column; }
+@media (min-width:431px){ #stage{ border-radius:36px; box-shadow:0 0 0 8px #050508, 0 30px 80px rgba(0,0,0,.6); } }
+
+.statusbar{ display:flex; justify-content:space-between; align-items:center; padding:10px 14px 6px; font-size:12px;
+  color:var(--muted); flex:0 0 auto; font-family:'IBM Plex Mono',monospace; letter-spacing:.02em; }
+.statusbar .dot{width:5px;height:5px;border-radius:50%;background:var(--coral);display:inline-block;margin-right:6px; animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.home-btn{ background:var(--surface2); border:1px solid var(--line); color:var(--text); width:30px; height:30px; border-radius:9px;
+  font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.home-btn:active{background:var(--surface3);}
+.sb-right{display:flex; align-items:center; gap:10px;}
+
+.screen{ flex:1 1 auto; display:flex; flex-direction:column; padding:14px 20px 22px; overflow-y:auto; animation:fadein .35s ease; }
+@keyframes fadein{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
+
+/* ---------- START ---------- */
+.start-wrap{flex:1; display:flex; flex-direction:column; justify-content:space-between;}
+.eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--coral); margin-bottom:10px; }
+.title-hero{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:44px; line-height:1.02; letter-spacing:-.02em; margin:0 0 14px; }
+.sub{color:var(--muted); font-size:16.5px; line-height:1.6; max-width:34ch;}
+.rules{ margin-top:26px; display:flex; flex-direction:column; gap:10px; }
+.rule-chip{ display:flex; align-items:center; gap:10px; background:var(--surface2); border:1px solid var(--line); border-radius:14px; padding:13px 14px; font-size:15px; font-weight:500; color:var(--text); }
+.rule-chip .ic{font-size:16px; width:20px; text-align:center;}
+.cta{ margin-top:24px; border:none; border-radius:16px; padding:17px 20px; background:linear-gradient(135deg,var(--coral),var(--violet));
+  color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; letter-spacing:.01em; cursor:pointer; width:100%; }
+.cta:active{transform:scale(.98);}
+.link-min{ margin-top:14px; background:none; border:none; color:var(--muted); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; text-align:center; font-family:'IBM Plex Mono',monospace; display:block; width:100%; }
+
+/* ---------- FEED CARD ---------- */
+.progress-row{display:flex; gap:5px; margin-bottom:14px; flex:0 0 auto;}
+.progress-seg{flex:1; height:3px; border-radius:3px; background:var(--line); overflow:hidden;}
+.progress-seg.done{background:var(--teal);}
+.progress-seg.now{background:linear-gradient(90deg,var(--coral),var(--teal));}
+.card-zone{flex:1; display:flex; align-items:center; justify-content:center; position:relative;}
+.post-card{ width:100%; background:var(--surface2); border:1px solid var(--line); border-radius:20px; overflow:hidden;
+  touch-action:none; will-change:transform; cursor:grab; position:relative; box-shadow:0 12px 30px rgba(0,0,0,.35); }
+.post-card.dragging{transition:none;}
+.post-card.snap{transition:transform .28s cubic-bezier(.2,.8,.2,1);}
+.post-card.flyout{transition:transform .38s ease-in, opacity .38s ease-in; opacity:0;}
+.p-head{display:flex; align-items:center; gap:10px; padding:13px 14px;}
+.p-avatar{ width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex:0 0 auto; background:var(--surface3); overflow:hidden; }
+.p-avatar img{width:100%;height:100%;object-fit:cover;}
+.ig-ring{padding:2px; border-radius:50%; background:linear-gradient(135deg,#f9906f,#c23f9c 55%,#7c3aed); flex:0 0 auto;}
+.ig-ring .p-avatar{border:2px solid var(--surface2);}
+.p-badge{ width:20px; height:20px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; font-family:'IBM Plex Mono',monospace; color:#fff; }
+.p-names{flex:1; min-width:0;}
+.p-uname{font-weight:600; font-size:14px;}
+.p-time{font-size:11.5px; color:var(--muted);}
+.p-media{ height:190px; display:flex; align-items:center; justify-content:center; font-size:54px; position:relative; overflow:hidden;}
+.p-media img{width:100%; height:100%; object-fit:cover;}
+.p-caption{padding:12px 14px 4px; font-size:14.5px; line-height:1.4;}
+.p-caption b{font-weight:600;}
+.p-comments{padding:6px 14px 14px; display:flex; flex-direction:column; gap:8px;}
+.p-comment{font-size:13px; color:var(--muted); line-height:1.4;}
+.p-comment b{color:var(--text); font-weight:600;}
+.p-draft{ margin:2px 14px 14px; padding:11px 13px; background:var(--surface3); border-radius:12px; border:1px dashed var(--violet); }
+.p-draft-label{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:var(--violet); text-transform:uppercase; margin-bottom:5px; font-weight:500;}
+.p-draft-text{font-size:14.5px; font-weight:500;}
+.ig-actions{display:flex; gap:14px; padding:10px 14px 0; font-size:19px; align-items:center;}
+.ig-actions .push{margin-left:auto;}
+.tt-media{height:280px; background:#000;}
+.tt-side{position:absolute; right:10px; bottom:70px; display:flex; flex-direction:column; gap:16px; font-size:20px; text-align:center; text-shadow:0 2px 6px rgba(0,0,0,.6);}
+.tt-bottom{position:absolute; left:14px; right:56px; bottom:14px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.7);}
+.tt-bottom .p-uname{color:#fff; font-size:14px;}
+.tt-caption{font-size:13.5px; margin-top:3px;}
+.tt-sound{font-size:11.5px; margin-top:6px; opacity:.85;}
+.tt-badge-row{display:flex; align-items:center; gap:8px; padding:10px 14px;}
+.snap-timer{font-family:'IBM Plex Mono',monospace; font-size:11px; color:#111; background:#FFE234; padding:4px 8px; border-radius:8px; font-weight:700;}
+.fb-reactions{display:flex; align-items:center; gap:8px; padding:8px 14px 2px; font-size:16px; color:var(--muted);}
+.fb-count{font-size:12px; font-family:'IBM Plex Mono',monospace;}
+.fb-comment-actions{display:block; font-size:10.5px; color:#5f5d69; margin-top:1px;}
+.swipe-tag{ position:absolute; top:22px; padding:6px 14px; border-radius:8px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; letter-spacing:.05em; border:2.5px solid; opacity:0; pointer-events:none; text-transform:uppercase; z-index:5; }
+.swipe-tag.left{left:18px; color:var(--coral); border-color:var(--coral); transform:rotate(-8deg);}
+.swipe-tag.right{right:18px; color:var(--teal); border-color:var(--teal); transform:rotate(8deg);}
+.action-row{display:flex; gap:14px; margin-top:16px; flex:0 0 auto;}
+.abtn{ flex:1; border-radius:16px; padding:15px 10px; border:1px solid var(--line); background:var(--surface2); color:var(--text);
+  font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14.5px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+.abtn .ic{font-size:20px;}
+.abtn.del{border-color:rgba(255,84,112,.35);}
+.abtn.del:active{background:rgba(255,84,112,.12);}
+.abtn.send{border-color:rgba(56,217,201,.35);}
+.abtn.send:active{background:rgba(56,217,201,.12);}
+.hint{text-align:center; color:var(--muted); font-size:13px; margin-top:10px; font-family:'IBM Plex Mono',monospace;}
+
+/* ---------- SIEVE ---------- */
+.sieve-head{flex:0 0 auto; margin-bottom:6px;}
+.sieve-step{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase;}
+.sieve-q{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:26px; line-height:1.15; margin:10px 0 26px;}
+.sieve-opts{display:flex; flex-direction:column; gap:12px;}
+.opt{ border:1px solid var(--line); background:var(--surface2); border-radius:14px; padding:16px 16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.opt:active{background:var(--surface3);}
+.opt .otxt{font-size:15px; font-weight:500;}
+.opt .oarrow{color:var(--muted); font-size:16px;}
+
+/* ---------- IMPACT SPLIT ---------- */
+.impact-wrap{flex:1; display:flex; flex-direction:column; justify-content:center; position:relative;}
+.impact-label{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; margin-bottom:18px; }
+.split{ position:relative; border-radius:18px; overflow:hidden; border:1px solid var(--line); }
+.half{ padding:26px 22px; position:relative; transition:transform .6s cubic-bezier(.22,.9,.3,1), padding .6s ease; }
+.half.toi{background:linear-gradient(135deg,#20202b,#191922);}
+.half.autre{background:linear-gradient(135deg,#2a1620,#1c1017); border-top:1px solid var(--line);}
+.half-tag{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px;}
+.half.toi .half-tag{color:var(--teal);}
+.half.autre .half-tag{color:var(--coral);}
+.half-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:19px; line-height:1.3;}
+.split.open .half.toi{transform:translateY(-4px);}
+.split.open .half.autre{transform:translateY(4px);}
+.crack{ position:absolute; left:0; right:0; top:50%; height:2px; background:var(--line); z-index:2; transform:translateY(-1px); overflow:visible; }
+.crack::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,var(--coral),var(--violet),var(--teal),transparent); opacity:0; animation:flick 1.1s ease .15s 1; }
+@keyframes flick{0%{opacity:0}15%{opacity:1}30%{opacity:.2}45%{opacity:1}70%{opacity:.1}100%{opacity:0}}
+.impact-continue{margin-top:28px;}
+
+/* ---------- DECISION ---------- */
+.dec-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:23px; margin:4px 0 22px; line-height:1.25;}
+.dec-list{display:flex; flex-direction:column; gap:12px;}
+.dbtn{ border-radius:15px; padding:16px 16px; border:1px solid var(--line); background:var(--surface2); text-align:left; cursor:pointer; display:flex; align-items:center; gap:12px; }
+.dbtn .dic{font-size:20px;}
+.dbtn .dtxt{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15.5px;}
+.dbtn .dsub{font-size:13px; color:var(--muted); margin-top:2px; font-weight:400; font-family:'Inter',sans-serif;}
+.dbtn.primary{border-color:rgba(255,84,112,.4);}
+.dbtn.soft{border-color:rgba(124,108,240,.4);}
+.dbtn.ghost{border-color:rgba(56,217,201,.4);}
+.dbtn.dm{border-color:rgba(255,180,84,.4);}
+
+/* ---------- REFORM ---------- */
+.reform-orig{ background:var(--surface3); border-radius:14px; padding:14px 16px; margin-bottom:20px; border-left:3px solid var(--coral); }
+.reform-orig .rlabel{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--coral); letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px;}
+.reform-orig .rtext{font-size:14.5px; text-decoration:line-through; text-decoration-color:rgba(255,84,112,.5); opacity:.75;}
+.reform-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:17px; margin-bottom:14px;}
+.reform-opts{display:flex; flex-direction:column; gap:11px;}
+.ropt{border:1px solid var(--line); background:var(--surface2); border-radius:13px; padding:14px 15px; font-size:14.5px; cursor:pointer;}
+.ropt:active{background:var(--surface3);}
+.ropt.chosen{border-color:var(--teal); background:rgba(56,217,201,.08);}
+.reform-confirm{margin-top:20px; text-align:center;}
+.reform-confirm .ic{font-size:30px; margin-bottom:8px;}
+.reform-confirm .msg{color:var(--muted); font-size:13.5px; line-height:1.5;}
+
+/* ---------- END SCREEN ---------- */
+.end-wrap{flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;}
+.end-mark{font-size:34px; margin-bottom:18px;}
+.end-phrase{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:27px; line-height:1.3;
+  background:linear-gradient(135deg,#fff,#c9c6d8); -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:8px; }
+.end-sub{color:var(--muted); font-size:13px; margin-bottom:30px;}
+
+/* ---------- ADMIN ---------- */
+.code-box{display:flex; flex-direction:column; gap:14px; margin-top:20px;}
+.code-input{ background:var(--surface2); border:1px solid var(--line); border-radius:14px; padding:16px; color:var(--text);
+  font-family:'IBM Plex Mono',monospace; font-size:22px; letter-spacing:.3em; text-align:center; width:100%; }
+.code-input:focus{outline:none; border-color:var(--violet);}
+.err-msg{color:var(--coral); font-size:12.5px; text-align:center; font-family:'IBM Plex Mono',monospace;}
+.admin-tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+.atab{flex:1; min-width:70px; padding:9px 4px; border-radius:11px; border:1px solid var(--line); background:var(--surface2); color:var(--muted); font-size:11.5px; text-align:center; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-weight:600;}
+.atab.active{background:var(--surface3); color:var(--text); border-color:var(--violet);}
+.gstat-note{color:var(--muted); font-size:12.5px; line-height:1.5;}
+.big-num{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:40px; color:var(--teal);}
+.sum-block-title{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:20px 0 10px;}
+.bar-row{display:flex; align-items:center; gap:10px; margin-bottom:9px;}
+.bar-label{width:120px; font-size:12px; color:var(--muted); flex:0 0 auto;}
+.bar-track{flex:1; height:11px; background:var(--surface3); border-radius:6px; overflow:hidden;}
+.bar-fill{height:100%; border-radius:6px;}
+.bar-val{width:24px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); flex:0 0 auto;}
+.sc-card{background:var(--surface2); border:1px solid var(--line); border-radius:14px; padding:13px 14px; margin-bottom:10px;}
+.sc-card .sc-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13.5px; margin-bottom:8px;}
+.sc-mini-row{display:flex; gap:10px; font-size:11px; color:var(--muted); flex-wrap:wrap;}
+.sc-mini-row span b{color:var(--text);}
+.reform-detail{margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+.reform-detail .rdt{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;}
+.reform-detail .rd-row{display:flex; justify-content:space-between; gap:8px; font-size:12px; margin-bottom:5px; color:var(--text);}
+.reform-detail .rd-row span{flex:1;}
+.reform-detail .rd-custom{font-size:12px; color:var(--text); background:var(--surface3); border-radius:8px; padding:7px 9px; margin-bottom:6px; font-style:italic; line-height:1.4;}
+.set-block{background:var(--surface2); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px;}
+.set-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14.5px; margin-bottom:10px;}
+.set-input{background:var(--surface3); border:1px solid var(--line); border-radius:10px; padding:12px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:15px; width:100%; margin-bottom:10px;}
+.set-btn{border:none; border-radius:10px; padding:11px; width:100%; font-family:'Space Grotesk',sans-serif; font-weight:600; cursor:pointer; font-size:13.5px;}
+.set-btn.primary{background:var(--violet); color:#fff;}
+.set-btn.danger{background:rgba(255,84,112,.15); color:var(--coral); border:1px solid rgba(255,84,112,.4);}
+.set-ok{color:var(--teal); font-size:12px; margin-top:6px; font-family:'IBM Plex Mono',monospace;}
+
+/* posts list */
+.post-row{display:flex; align-items:center; gap:10px; background:var(--surface2); border:1px solid var(--line); border-radius:14px; padding:10px 12px; margin-bottom:10px;}
+.pr-thumb{width:46px; height:46px; border-radius:10px; overflow:hidden; flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-size:20px;}
+.pr-thumb img{width:100%; height:100%; object-fit:cover;}
+.pr-meta{flex:1; min-width:0;}
+.pr-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pr-sub{font-size:11px; color:var(--muted);}
+.pr-actions{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
+.switch{position:relative; width:34px; height:20px; display:inline-block;}
+.switch input{opacity:0; width:0; height:0;}
+.slider{position:absolute; inset:0; background:var(--surface3); border:1px solid var(--line); border-radius:20px; cursor:pointer; transition:.2s;}
+.slider::before{content:''; position:absolute; width:14px; height:14px; left:2px; top:2px; background:var(--muted); border-radius:50%; transition:.2s;}
+.switch input:checked + .slider{background:rgba(56,217,201,.25); border-color:var(--teal);}
+.switch input:checked + .slider::before{transform:translateX(14px); background:var(--teal);}
+.minibtn{border:1px solid var(--line); background:var(--surface3); color:var(--text); border-radius:8px; padding:7px 9px; font-size:10.5px; cursor:pointer; font-family:'IBM Plex Mono',monospace;}
+.minibtn.reset{color:var(--coral); border-color:rgba(255,84,112,.4);}
+
+/* editor */
+.ed-label{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:14px 0 6px;}
+.ed-label:first-child{margin-top:0;}
+.mini-input, .ed-select, .ed-textarea{ width:100%; background:var(--surface3); border:1px solid var(--line); border-radius:10px; padding:11px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:13.5px; }
+.ed-textarea{resize:vertical; min-height:52px;}
+.two-col{display:flex; gap:8px;}
+.two-col > *{flex:1;}
+.comment-row-edit, .reform-row-edit{display:flex; gap:6px; margin-bottom:8px; align-items:center;}
+.comment-row-edit .ca{flex:0 0 30%;}
+.comment-row-edit .ct{flex:1;}
+.addrow-btn{background:none; border:1px dashed var(--line); color:var(--muted); border-radius:10px; padding:9px; width:100%; font-size:12px; cursor:pointer; font-family:'IBM Plex Mono',monospace; margin-top:2px;}
+.ed-photo-row{display:flex; align-items:center; gap:12px;}
+#edPhotoPreview{width:52px; height:52px; border-radius:10px; overflow:hidden; background:var(--surface3); display:flex; align-items:center; justify-content:center; font-size:20px; flex:0 0 auto;}
+#edPhotoPreview img{width:100%; height:100%; object-fit:cover;}
+.ed-actions{display:flex; gap:10px; margin-top:20px;}
+.ed-actions .cta{margin-top:0;}
+.ed-actions .set-btn{margin-top:0;}
+
+/* phrases */
+.phrase-row{display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface2); border:1px solid var(--line); border-radius:12px; padding:11px 13px; margin-bottom:8px; font-size:13px;}
+.add-phrase-row{display:flex; gap:8px; margin-bottom:6px;}
+.add-phrase-row .mini-input{flex:1;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="statusbar">
+    <button class="home-btn" onclick="goHome()" title="Accueil">⌂</button>
+    <div class="sb-right"><span class="dot"></span>EN DIRECT&nbsp;<span id="clock">21:14</span></div>
+  </div>
+  <div id="screen" class="screen"></div>
+</div>
+
+<script>
+/* ================= STATIC DATA ================= */
+const PLATFORMS = {
+  insta:{mono:'IG', grad:'linear-gradient(135deg,#f9906f,#c23f9c 55%,#7c3aed)', label:'Instagram'},
+  tiktok:{mono:'TT', grad:'linear-gradient(135deg,#111,#111)', label:'TikTok'},
+  snap:{mono:'SC', grad:'linear-gradient(135deg,#FFE234,#FFE234)', label:'Snapchat'},
+  fb:{mono:'FB', grad:'linear-gradient(135deg,#2d6cdf,#1a4fb4)', label:'Facebook'}
+};
+
+const DEFAULT_SCENARIOS = [
+ { id:'coupe', platform:'insta', author:'lina.b', time:'2 h', icon:'💇‍♀️', grad:'linear-gradient(160deg,#ff9a8b,#ff6a88)',
+   caption:'Nouvelle coupe 😎',
+   comments:[['leo_m','💀💀💀'],['nina.k','Qui lui dit ??'],['sam.tt','C’est une blague ? 😂']],
+   draft:'Mdrrr t’as fait quoi là 😂', toi:'De l’humour entre potes.', autre:'Une humiliation, lue par tout le monde.',
+   reform:['Osé le changement, j’avoue 😅','Perso je préférais avant, mais chacun ses goûts 🙂','Ça te change, mais assume à fond 👍'] },
+ { id:'examen', platform:'fb', author:'Enzo D.', time:'34 min', icon:'📚', grad:'linear-gradient(160deg,#667eea,#764ba2)',
+   caption:'J’ai raté mon examen… 😔',
+   comments:[['Enzo','Bah fallait étudier'],['Mia','😂'],['Zoé','Force 💪']],
+   draft:'Ptdr fallait réviser au lieu de scroller', toi:'Un conseil un peu sec.', autre:'La confirmation qu’il est nul.',
+   reform:['Courage, un examen ne définit pas tout 💪','Ça arrive à tout le monde, tu te rattrapes','Dis-moi si tu veux qu’on révise ensemble la prochaine fois'] },
+ { id:'soiree', platform:'insta', author:'chloe__', time:'5 h', icon:'🎉', grad:'linear-gradient(160deg,#f7971e,#ffd200)',
+   caption:'Souvenir de la soirée d’hier 🥳',
+   comments:[['max.r','Sérieux cette tenue 💀'],['ines','On dirait pas toi mdrr'],['tom','😭😭']],
+   draft:'T’es sérieuse tu postes ça toi-même 💀', toi:'Juste un avis franc.', autre:'La preuve publique qu’elle est ridicule sur les photos.',
+   reform:['Ambiance de fou cette soirée on dirait 🔥','Photo sympa, ça avait l’air top','J’aurais choisi une autre photo perso, mais bon 😄'] },
+ { id:'rupture', platform:'snap', author:'jules._x', time:'1 h', icon:'🖤', grad:'linear-gradient(160deg,#232526,#414345)',
+   caption:'Nouveau chapitre 🖤',
+   comments:[['jules','Bah enfin'],['ana','On le sentait venir 😬'],['ryan','Ça va, ça va']],
+   draft:'Grave on l’avait tous vu venir 😭', toi:'Une blague potache entre potes.', autre:'Sa rupture étalée et moquée devant tout le monde.',
+   reform:['Courage à toi, prends soin de toi ❤️','Toujours là si tu veux en parler','On est là si t’as besoin'] },
+ { id:'danse', platform:'tiktok', author:'nora.dance', time:'12 min', icon:'💃', grad:'linear-gradient(160deg,#ee0979,#ff6a00)',
+   caption:'Nouvelle choré, dites-moi ce que vous en pensez 😅',
+   comments:[['ryan_k','Reste à ta place 💀'],['sofia','Pas pour toi ce délire'],['ben','😂😂😂']],
+   draft:'Franchement arrête la danse mdrr', toi:'Un retour direct, sans plus.', autre:'La 5e personne qui lui dit d’arrêter aujourd’hui.',
+   reform:['Y’a du progrès, continue à t’entraîner 🙂','Pas ma choré préférée mais bien tenté','Courage, c’est pas facile de poster ça'] },
+ { id:'stream', platform:'tiktok', author:'kev_gg', time:'40 min', icon:'🎮', grad:'linear-gradient(160deg,#0f2027,#2c5364)',
+   caption:'Clutch raté du soir 🤡',
+   comments:[['ax3l','T’es une charge sérieux'],['milo','Rage quit direct'],['sana','😭😭😭']],
+   draft:'T’es vraiment une charge cette partie mdrr', toi:'Une pique entre joueurs, sans conséquence.', autre:'Ce qu’il entend après chaque partie, tous les jours.',
+   reform:['Dure celle-là, la prochaine sera meilleure','On a tous nos mauvais jours 😅','GG quand même, on relance une partie ?'] },
+ { id:'chant', platform:'insta', author:'maya.sings', time:'3 h', icon:'🎤', grad:'linear-gradient(160deg,#8e2de2,#4a00e0)',
+   caption:'Petite reprise pour vous ce soir 🎶',
+   comments:[['theo','Bon là faut arrêter le chant 😂'],['lou','Aïe mes oreilles'],['nas','💀']],
+   draft:'Bon là faut vraiment arrêter le chant 😂', toi:'Une taquinerie sans y penser.', autre:'La raison pour laquelle elle ne repostera plus jamais.',
+   reform:['Le choix de la chanson est top en tout cas 🎶','Continue à pratiquer, on progresse en postant','Merci du partage, ça prend du courage de poster ça'] },
+ { id:'groupe', platform:'fb', author:'Dans le groupe classe', time:'8 min', icon:'💬', grad:'linear-gradient(160deg,#36d1dc,#5b86e5)',
+   caption:'Quelqu’un a vu le dernier post de Yanis ? 💀',
+   comments:[['Léa','Trop cringe'],['Noah','Il fait quoi là 😭'],['Ilan','+1'],['Zaid','+1 aussi mdrr']],
+   draft:'+1, trop relou celui-là', toi:'Suivre le mouvement, un like de plus.', autre:'Se sentir visé par tout un groupe, d’un coup.',
+   reform:['Je préfère pas trop m’exprimer sur celui-là','On se calme un peu avec Yanis non ?','Bon, on parle d’autre chose ? 😅'] }
+];
+
+const DEFAULT_PHRASES = {
+  positive:['Les mots restent parfois plus longtemps que les stories.','Derrière chaque écran, il y a une vraie personne.','Pause. Pense. Poste.','Les commentaires passent. Les émotions restent.'],
+  impact:['Tu ne sais jamais ce que quelqu’un traverse derrière son écran.','Ce n’est pas parce que tout le monde le fait que ça ne blesse pas.','Un message envoyé en 2 secondes peut peser pendant 2 ans.'],
+  neutre:['Chaque post est un choix, même le plus rapide.','Ce que tu ne dis pas compte aussi.','Trois secondes de pause peuvent tout changer.']
+};
+
+const DEFAULT_ADMIN_CODE = '4800';
+const DEFAULT_ROUNDS = 6;
+
+/* ============================================================================
+   STOCKAGE EN LIGNE (OPTIONNEL) — Firebase Firestore
+   ----------------------------------------------------------------------------
+   Par défaut (FIREBASE_CONFIG = null), l'appli utilise le stockage fourni par
+   l'aperçu Claude (window.storage) : pratique pour tester, mais limité à la
+   session en cours et à cet onglet.
+
+   Pour une vraie appli EN LIGNE, avec sauvegarde permanente entre sessions et
+   entre appareils : crée un projet Firebase gratuit (voir le guide fourni),
+   colle ta configuration ci-dessous, puis héberge ce fichier HTML n'importe où
+   (Netlify, Firebase Hosting, etc.). Rien d'autre à changer dans le code.
+   ============================================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyA36SNBdaTM3c51yfL36SbZOl7C6XWP9FE",
+  authDomain: "avant-denvoyer.firebaseapp.com",
+  projectId: "avant-denvoyer",
+  storageBucket: "avant-denvoyer.firebasestorage.app",
+  messagingSenderId: "780039176961",
+  appId: "1:780039176961:web:364842edcf096547131100"
+};
+*/
+
+function firebaseEnabled(){ return !!FIREBASE_CONFIG; }
+let _fbDb = null, _fbLoading = null;
+function loadFirebaseScript(src){
+  return new Promise((resolve,reject)=>{
+    const s = document.createElement('script');
+    s.src = src; s.onload = ()=>resolve(); s.onerror = ()=>reject(new Error('Échec de chargement de ' + src));
+    document.head.appendChild(s);
+  });
+}
+function loadFirebase(){
+  if(_fbDb) return Promise.resolve();
+  if(_fbLoading) return _fbLoading;
+  _fbLoading = (async ()=>{
+    await loadFirebaseScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+    await loadFirebaseScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
+    firebase.initializeApp(FIREBASE_CONFIG);
+    _fbDb = firebase.firestore();
+  })();
+  return _fbLoading;
+}
+/* Adaptateur générique : bascule automatiquement entre Firestore (si configuré)
+   et le stockage de l'aperçu Claude (window.storage), sans rien changer au
+   reste du code de l'appli. */
+async function dbGet(key, shared){
+  if(firebaseEnabled()){
+    await loadFirebase();
+    const doc = await _fbDb.collection('avant-denvoyer').doc(key).get();
+    if(!doc.exists) throw new Error('clé absente : ' + key);
+    return { key, value: doc.data().value, shared };
+  }
+  return window.storage.get(key, shared);
+}
+async function dbSet(key, value, shared){
+  if(firebaseEnabled()){
+    await loadFirebase();
+    await _fbDb.collection('avant-denvoyer').doc(key).set({ value, updatedAt: Date.now() });
+    return { key, value, shared };
+  }
+  return window.storage.set(key, value, shared);
+}
+
+/* ================= RUNTIME STATE ================= */
+let S = { screen:'start', order:[], idx:0, sieveStep:0, sieveAns:{}, results:[], finalPhrase:'',
+  adminTab:'stats', adminErr:'', confirmReset:false, confirmLibReset:false, confirmCodeMsg:'', roundsMsg:'', postEditor:null, statsDate:'all' };
+
+let ALL_SCENARIOS = [];
+let DISABLED_IDS = [];
+let CUSTOM_IMAGES = {};
+let PHRASES_STORE = null;
+let ROUNDS_COUNT = DEFAULT_ROUNDS;
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function attrJson(x){ return esc(JSON.stringify(x)); }
+function stripEmoji(s){
+  return String(s||'')
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{FE0F}\u{200D}]/gu,'')
+    .replace(/\s+/g,' ').trim();
+}
+let _jsPdfLoading = null;
+function loadJsPDF(){
+  if(window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
+  if(_jsPdfLoading) return _jsPdfLoading;
+  _jsPdfLoading = new Promise((resolve,reject)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload = ()=> resolve();
+    s.onerror = ()=> reject(new Error('Le générateur PDF n’a pas pu être chargé (connexion internet requise).'));
+    document.head.appendChild(s);
+  });
+  return _jsPdfLoading;
+}
+function drawBarChartPDF(doc, x, y, width, rows, opts){
+  opts = opts || {};
+  const maxVal = Math.max(1, ...rows.map(r=>r.value));
+  const barH = opts.barHeight || 15;
+  const gap = opts.gap || 9;
+  const labelWidth = opts.labelWidth || 140;
+  const trackW = width - labelWidth - 32;
+  let curY = y;
+  rows.forEach(r=>{
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,90,100);
+    doc.text(String(r.label), x, curY + barH*0.72);
+    const trackX = x + labelWidth;
+    doc.setFillColor(233,233,238);
+    doc.roundedRect(trackX, curY, trackW, barH, 3, 3, 'F');
+    const w = Math.max(2, (r.value/maxVal) * trackW);
+    doc.setFillColor(r.color[0], r.color[1], r.color[2]);
+    doc.roundedRect(trackX, curY, w, barH, 3, 3, 'F');
+    doc.setTextColor(40,40,45);
+    doc.text(String(r.value), trackX + trackW + 8, curY + barH*0.72);
+    curY += barH + gap;
+  });
+  return curY;
+}
+function shuffle(a){a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+function currentScenario(){ return ALL_SCENARIOS.find(s=>s.id===S.order[S.idx]); }
+function activeScenarios(){ return ALL_SCENARIOS.filter(s=>!DISABLED_IDS.includes(s.id)); }
+
+/* ================= STORAGE ================= */
+let GROUP_AGG_CACHE = null;
+
+async function loadScenarios(){
+  try{
+    const r = await dbGet('scenarios-store', true);
+    if(r && r.value){ ALL_SCENARIOS = JSON.parse(r.value); return; }
+    // key genuinely absent (no error thrown) -> first run ever, seed defaults once
+    if(!ALL_SCENARIOS || !ALL_SCENARIOS.length) ALL_SCENARIOS = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+    await dbSet('scenarios-store', JSON.stringify(ALL_SCENARIOS), true);
+  }catch(e){
+    console.error('loadScenarios error', e);
+    // Never overwrite what's already in memory on a read error (storage may just be
+    // unavailable this session). Only fall back to defaults if nothing loaded yet.
+    if(!ALL_SCENARIOS || !ALL_SCENARIOS.length) ALL_SCENARIOS = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+  }
+}
+async function saveScenarios(){ try{ await dbSet('scenarios-store', JSON.stringify(ALL_SCENARIOS), true); return true; }catch(e){ console.error('saveScenarios failed', e); return false; } }
+
+let _disabledEverLoaded = false;
+async function loadDisabled(){
+  try{ const r = await dbGet('disabled-scenarios', true); DISABLED_IDS = r? JSON.parse(r.value) : []; _disabledEverLoaded = true; }
+  catch(e){ if(!_disabledEverLoaded){ DISABLED_IDS = []; _disabledEverLoaded = true; } }
+}
+async function saveDisabled(){ try{ await dbSet('disabled-scenarios', JSON.stringify(DISABLED_IDS), true); return true; }catch(e){ console.error('saveDisabled failed', e); return false; } }
+
+let _imagesEverLoaded = false;
+async function loadCustomImages(){
+  try{ const r = await dbGet('custom-images', true); CUSTOM_IMAGES = r ? JSON.parse(r.value) : {}; _imagesEverLoaded = true; }
+  catch(e){ if(!_imagesEverLoaded){ CUSTOM_IMAGES = {}; _imagesEverLoaded = true; } }
+}
+async function saveCustomImages(){ try{ await dbSet('custom-images', JSON.stringify(CUSTOM_IMAGES), true); return true; }catch(e){ console.error('saveCustomImages failed', e); return false; } }
+
+async function loadPhrases(){
+  try{
+    const r = await dbGet('phrases-store', true);
+    if(r && r.value){ PHRASES_STORE = JSON.parse(r.value); return; }
+    if(!PHRASES_STORE) PHRASES_STORE = JSON.parse(JSON.stringify(DEFAULT_PHRASES));
+    await dbSet('phrases-store', JSON.stringify(PHRASES_STORE), true);
+  }catch(e){
+    console.error('loadPhrases error', e);
+    if(!PHRASES_STORE) PHRASES_STORE = JSON.parse(JSON.stringify(DEFAULT_PHRASES));
+  }
+}
+async function savePhrases(){ try{ await dbSet('phrases-store', JSON.stringify(PHRASES_STORE), true); return true; }catch(e){ console.error('savePhrases failed', e); return false; } }
+
+let _roundsEverLoaded = false;
+async function loadRounds(){
+  try{ const r = await dbGet('rounds-count', true); ROUNDS_COUNT = r ? (parseInt(r.value,10) || DEFAULT_ROUNDS) : DEFAULT_ROUNDS; _roundsEverLoaded = true; }
+  catch(e){ if(!_roundsEverLoaded){ ROUNDS_COUNT = DEFAULT_ROUNDS; _roundsEverLoaded = true; } }
+}
+async function saveRounds(n){ try{ await dbSet('rounds-count', String(n), true); return true; }catch(e){ console.error('saveRounds failed', e); return false; } }
+
+async function getAdminCode(){
+  try{ const r = await dbGet('admin-code', true); return (r && r.value) ? r.value : DEFAULT_ADMIN_CODE; }
+  catch(e){ return DEFAULT_ADMIN_CODE; }
+}
+async function setAdminCode(code){ try{ await dbSet('admin-code', code, true); return true; }catch(e){ console.error('setAdminCode failed', e); return false; } }
+
+function emptyAggNode(){ return { sessions:0, totals:{supprime_direct:0, annule:0, reformule:0, dm:0, envoye:0}, byScenario:{} }; }
+function emptyAgg(){ const n = emptyAggNode(); n.byDate = {}; return n; }
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function formatDateFr(key){
+  const [y,m,d] = key.split('-');
+  return `${d}/${m}/${y}`;
+}
+async function fetchGroupStats(){
+  try{
+    const r = await dbGet('group-agg-v2', true);
+    if(r && r.value){
+      GROUP_AGG_CACHE = JSON.parse(r.value);
+      if(GROUP_AGG_CACHE.totals && GROUP_AGG_CACHE.totals.dm===undefined) GROUP_AGG_CACHE.totals.dm=0;
+      if(!GROUP_AGG_CACHE.byDate) GROUP_AGG_CACHE.byDate = {};
+      return GROUP_AGG_CACHE;
+    }
+  }catch(e){ console.error('fetchGroupStats error', e); }
+  // Storage empty or unavailable: fall back to whatever we already have in memory
+  // for this tab, instead of silently returning zeros (which made stats look reset).
+  if(!GROUP_AGG_CACHE) GROUP_AGG_CACHE = emptyAgg();
+  return GROUP_AGG_CACHE;
+}
+function _bumpAggNode(node, r, bucket){
+  node.totals[bucket] = (node.totals[bucket]||0) + 1;
+  if(!node.byScenario[r.id]) node.byScenario[r.id]={supprime_direct:0,annule:0,reformule:0,dm:0,envoye:0, label:r.label, reformCounts:{}, customReforms:[]};
+  const scAgg = node.byScenario[r.id];
+  scAgg[bucket] += 1;
+  scAgg.label = r.label;
+  if(bucket==='reformule' && r.reform && r.reform.text){
+    if(!scAgg.reformCounts) scAgg.reformCounts = {};
+    if(!scAgg.customReforms) scAgg.customReforms = [];
+    if(r.reform.type==='custom') scAgg.customReforms.push(r.reform.text);
+    else scAgg.reformCounts[r.reform.text] = (scAgg.reformCounts[r.reform.text]||0) + 1;
+  }
+}
+async function pushGroupStats(){
+  const agg = await fetchGroupStats();
+  const dateKey = todayKey();
+  if(!agg.byDate) agg.byDate = {};
+  if(!agg.byDate[dateKey]) agg.byDate[dateKey] = emptyAggNode();
+  agg.sessions += 1;
+  agg.byDate[dateKey].sessions += 1;
+  S.results.forEach(r=>{
+    let bucket;
+    if(r.initial==='supprime') bucket='supprime_direct';
+    else if(r.final==='annule') bucket='annule';
+    else if(r.final==='reformule') bucket='reformule';
+    else if(r.final==='dm') bucket='dm';
+    else bucket='envoye';
+    _bumpAggNode(agg, r, bucket);
+    _bumpAggNode(agg.byDate[dateKey], r, bucket);
+  });
+  GROUP_AGG_CACHE = agg; // keep in memory regardless of whether the write below succeeds
+  try{ await dbSet('group-agg-v2', JSON.stringify(agg), true); }catch(e){ console.error('pushGroupStats failed', e); }
+}
+async function resetGroupStats(){
+  GROUP_AGG_CACHE = emptyAgg();
+  try{ await dbSet('group-agg-v2', JSON.stringify(GROUP_AGG_CACHE), true); }catch(e){ console.error('resetGroupStats failed', e); }
+}
+
+function fileToCompressedDataURL(file, maxW=640, quality=0.62){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w > maxW){ h = Math.round(h * (maxW/w)); w = maxW; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = ()=>reject(new Error('image invalide'));
+      img.src = e.target.result;
+    };
+    reader.onerror = ()=>reject(new Error('lecture impossible'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ================= HOME / NAV ================= */
+function goHome(){
+  const midSession = ['post','sieve','impact','decision','reform'].includes(S.screen);
+  if(midSession && !confirm('Revenir à l’accueil ? La session en cours sera perdue.')) return;
+  S.screen='start'; S.postEditor=null; render();
+}
+function backToStart(){ S.screen='start'; render(); }
+
+/* ================= RENDER DISPATCH ================= */
+function render(){
+  const el = document.getElementById('screen');
+  el.innerHTML = '';
+  el.classList.remove('screen'); void el.offsetWidth; el.classList.add('screen');
+  if(S.screen==='start') renderStart(el);
+  else if(S.screen==='post') renderPost(el);
+  else if(S.screen==='sieve') renderSieve(el);
+  else if(S.screen==='impact') renderImpact(el);
+  else if(S.screen==='decision') renderDecision(el);
+  else if(S.screen==='reform') renderReform(el);
+  else if(S.screen==='end') renderEnd(el);
+  else if(S.screen==='adminlogin') renderAdminLogin(el);
+  else if(S.screen==='admin') renderAdmin(el);
+}
+
+/* ---------- START ---------- */
+function renderStart(el){
+  el.innerHTML = `
+  <div class="start-wrap">
+    <div>
+      <div class="eyebrow">Avant d'envoyer</div>
+      <h1 class="title-hero">2 sec <span style="color:var(--muted); font-weight:400;">pour écrire.</span><br>2 ans <span style="color:var(--muted); font-weight:400;">pour l'oublier ?</span></h1>
+      <p class="sub">Tu vas recevoir une série de posts, un par un. À chaque fois, un commentaire est déjà prêt à partir. À toi de voir.</p>
+      <div class="rules">
+        <div class="rule-chip"><span class="ic">👉</span> Glisse ou touche pour envoyer / supprimer</div>
+        <div class="rule-chip"><span class="ic">⚖️</span> Rien n'est noté. Personne ne juge tes choix</div>
+        <div class="rule-chip"><span class="ic">⚡</span> Ça va vite. C'est fait exprès</div>
+      </div>
+    </div>
+    <div>
+      <button class="cta" onclick="startSession()">Commencer</button>
+      <button class="link-min" onclick="goAdminLogin()">Admin</button>
+    </div>
+  </div>`;
+}
+
+async function startSession(){
+  await Promise.all([loadScenarios(), loadDisabled(), loadRounds()]);
+  const active = activeScenarios();
+  if(active.length < 1){ alert('Aucun post actif pour le moment. Va dans Admin > Posts pour en activer au moins un.'); return; }
+  const n = Math.max(1, Math.min(ROUNDS_COUNT, active.length));
+  S = { screen:'post', order:shuffle(active.map(s=>s.id)).slice(0,n), idx:0, sieveStep:0, sieveAns:{}, results:[], finalPhrase:'',
+    adminTab:'stats', adminErr:'', confirmReset:false, confirmLibReset:false, confirmCodeMsg:'', roundsMsg:'', postEditor:null, statsDate:'all' };
+  render();
+}
+
+/* ---------- POST / SWIPE ---------- */
+function mediaHTML(sc, extraClass){
+  const custom = CUSTOM_IMAGES[sc.id];
+  if(custom) return `<div class="p-media ${extraClass||''}"><img src="${custom}" alt=""></div>`;
+  return `<div class="p-media ${extraClass||''}" style="background:${sc.grad||'#333'}">${sc.icon||'📱'}</div>`;
+}
+function commentsHTML(sc, style){
+  return (sc.comments||[]).map(c=>{
+    if(style==='fb') return `<div class="p-comment"><b>${esc(c[0])}</b> ${esc(c[1])}<span class="fb-comment-actions">J’aime · Répondre</span></div>`;
+    return `<div class="p-comment"><b>${esc(c[0])}</b> ${esc(c[1])}</div>`;
+  }).join('');
+}
+function draftHTML(sc){
+  return `<div class="p-draft"><div class="p-draft-label">Ton commentaire, prêt à partir</div><div class="p-draft-text">${esc(sc.draft)}</div></div>`;
+}
+
+function buildCard(sc){
+  const plat = PLATFORMS[sc.platform] || PLATFORMS.insta;
+  const hasImg = !!CUSTOM_IMAGES[sc.id];
+  if(sc.platform==='insta'){
+    return `
+      <div class="p-head insta">
+        <div class="ig-ring"><div class="p-avatar">${hasImg?'':(sc.icon||'📱')}</div></div>
+        <div class="p-names"><div class="p-uname">${esc(sc.author)}</div><div class="p-time">${esc(sc.time)} · Instagram</div></div>
+        <div class="p-badge" style="background:${plat.grad}">${plat.mono}</div>
+      </div>
+      ${mediaHTML(sc)}
+      <div class="ig-actions">❤️ 🗨️ ✈️ <span class="push">🔖</span></div>
+      <div class="p-caption"><b>${esc(sc.author)}</b> ${esc(sc.caption)}</div>
+      <div class="p-comments">${commentsHTML(sc)}</div>
+      ${draftHTML(sc)}
+    `;
+  }
+  if(sc.platform==='tiktok'){
+    return `
+      <div class="tt-badge-row">
+        <div class="p-badge" style="background:#000; border:1px solid #333;">${plat.mono}</div>
+        <div class="p-time">${esc(sc.time)} · TikTok</div>
+      </div>
+      <div class="p-media tt-media">
+        ${hasImg ? `<img src="${CUSTOM_IMAGES[sc.id]}" alt="" style="width:100%;height:100%;object-fit:cover;">` : `<div style="background:${sc.grad||'#222'}; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:54px;">${sc.icon||'📱'}</div>`}
+        <div class="tt-side">❤️<br>💬<br>↗️</div>
+        <div class="tt-bottom">
+          <div class="p-uname">@${esc(sc.author)}</div>
+          <div class="tt-caption">${esc(sc.caption)}</div>
+          <div class="tt-sound">♪ son original</div>
+        </div>
+      </div>
+      <div class="p-comments">${commentsHTML(sc)}</div>
+      ${draftHTML(sc)}
+    `;
+  }
+  if(sc.platform==='snap'){
+    return `
+      <div class="p-head snap">
+        <div class="p-avatar">${hasImg?'':(sc.icon||'📱')}</div>
+        <div class="p-names"><div class="p-uname">${esc(sc.author)}</div><div class="p-time">🔥 12 · ${esc(sc.time)}</div></div>
+        <div class="snap-timer">⏱ 24h</div>
+      </div>
+      ${mediaHTML(sc)}
+      <div class="p-caption">${esc(sc.caption)}</div>
+      <div class="p-comments">${commentsHTML(sc)}</div>
+      ${draftHTML(sc)}
+    `;
+  }
+  return `
+    <div class="p-head fb">
+      <div class="p-avatar">${hasImg?'':(sc.icon||'📱')}</div>
+      <div class="p-names"><div class="p-uname">${esc(sc.author)}</div><div class="p-time">${esc(sc.time)} · 🌐 Public</div></div>
+      <div class="p-badge" style="background:${plat.grad}">${plat.mono}</div>
+    </div>
+    <div class="p-caption">${esc(sc.caption)}</div>
+    ${mediaHTML(sc)}
+    <div class="fb-reactions">👍❤️😆 <span class="fb-count">128</span></div>
+    <div class="p-comments">${commentsHTML(sc,'fb')}</div>
+    ${draftHTML(sc)}
+  `;
+}
+
+function renderPost(el){
+  const sc = currentScenario();
+  if(!sc){ backToStart(); return; }
+  const segs = S.order.map((_,i)=>{
+    let cls='progress-seg';
+    if(i<S.idx) cls+=' done'; else if(i===S.idx) cls+=' now';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="progress-row">${segs}</div>
+    <div class="card-zone">
+      <div class="post-card" id="card">
+        <div class="swipe-tag left" id="tagDel">SUPPRIMER</div>
+        <div class="swipe-tag right" id="tagSend">ENVOYER</div>
+        ${buildCard(sc)}
+      </div>
+    </div>
+    <div class="action-row">
+      <div class="abtn del" onclick="swipeOut('left')"><span class="ic">🗑️</span>Supprimer</div>
+      <div class="abtn send" onclick="swipeOut('right')"><span class="ic">📤</span>Envoyer</div>
+    </div>
+    <div class="hint">Post ${S.idx+1} / ${S.order.length}</div>
+  `;
+  attachDrag();
+}
+
+function attachDrag(){
+  const card = document.getElementById('card');
+  const tagDel = document.getElementById('tagDel');
+  const tagSend = document.getElementById('tagSend');
+  let startX=0, dx=0, dragging=false;
+  function onDown(e){ dragging = true; startX = (e.touches? e.touches[0].clientX : e.clientX); card.classList.add('dragging'); card.style.cursor='grabbing'; }
+  function onMove(e){
+    if(!dragging) return;
+    const x = (e.touches? e.touches[0].clientX : e.clientX);
+    dx = x - startX;
+    card.style.transform = `translateX(${dx}px) rotate(${dx/18}deg)`;
+    const p = Math.min(Math.abs(dx)/100,1);
+    if(dx<0){ tagDel.style.opacity=p; tagSend.style.opacity=0; } else { tagSend.style.opacity=p; tagDel.style.opacity=0; }
+  }
+  function onUp(){
+    if(!dragging) return;
+    dragging=false;
+    card.classList.remove('dragging'); card.classList.add('snap');
+    if(dx > 90){ swipeOut('right'); return; }
+    if(dx < -90){ swipeOut('left'); return; }
+    card.style.transform='translateX(0) rotate(0)';
+    tagDel.style.opacity=0; tagSend.style.opacity=0;
+    dx=0;
+  }
+  card.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  card.addEventListener('touchstart', onDown, {passive:true});
+  card.addEventListener('touchmove', onMove, {passive:true});
+  card.addEventListener('touchend', onUp);
+}
+
+function swipeOut(dir){
+  const card = document.getElementById('card');
+  if(!card) return;
+  card.classList.remove('dragging'); card.classList.add('flyout');
+  const away = dir==='right'? 600 : -600;
+  card.style.transform = `translateX(${away}px) rotate(${away/18}deg)`;
+  setTimeout(()=>{
+    const sc = currentScenario();
+    if(dir==='left'){
+      S.results.push({id:sc.id, label:sc.caption, initial:'supprime', final:null});
+      advanceRound();
+    } else {
+      S.sieveStep=0; S.sieveAns={};
+      S.screen='sieve';
+      render();
+    }
+  }, 320);
+}
+
+function advanceRound(){
+  S.idx += 1;
+  if(S.idx >= S.order.length){ finishSession(); return; }
+  S.screen='post';
+  render();
+}
+
+/* ---------- SIEVE ---------- */
+const SIEVE_Q = [
+  {key:'vrai', q:'Est-ce vrai ?', opts:[{v:'oui', t:'Oui, c’est vrai'},{v:'non', t:'Non'},{v:'pas_sur', t:'Pas sûr(e)'}]},
+  {key:'utile', q:'Est-ce utile ?', opts:[{v:'aide', t:'Ça aide'},{v:'detruit', t:'Ça détruit'},{v:'rien', t:'Ça ne sert à rien'}]},
+  {key:'bienveillant', q:'Est-ce bienveillant ?', opts:[{v:'respectueux', t:'Respectueux'},{v:'ambigu', t:'Ambigu'},{v:'blessant', t:'Blessant'}]}
+];
+function renderSieve(el){
+  const step = SIEVE_Q[S.sieveStep];
+  el.innerHTML = `
+    <div class="sieve-head"><div class="sieve-step">Tamis ${S.sieveStep+1} / 3</div><div class="sieve-q">${step.q}</div></div>
+    <div class="sieve-opts">${step.opts.map(o=>`<div class="opt" onclick="sieveAnswer('${step.key}','${o.v}')"><div class="otxt">${o.t}</div><div class="oarrow">→</div></div>`).join('')}</div>
+  `;
+}
+function sieveAnswer(key, val){
+  S.sieveAns[key]=val;
+  if(S.sieveStep < SIEVE_Q.length-1){ S.sieveStep+=1; render(); }
+  else{
+    S.screen='impact'; render();
+    setTimeout(()=>{ const sp = document.getElementById('splitEl'); if(sp) sp.classList.add('open'); }, 250);
+  }
+}
+
+/* ---------- IMPACT ---------- */
+function renderImpact(el){
+  const sc = currentScenario();
+  el.innerHTML = `
+    <div class="impact-wrap">
+      <div class="impact-label">Comment ce message peut être ressenti</div>
+      <div class="split" id="splitEl">
+        <div class="half toi"><div class="half-tag">Toi</div><div class="half-text">${esc(sc.toi)}</div></div>
+        <div class="crack"></div>
+        <div class="half autre"><div class="half-tag">L'autre</div><div class="half-text">${esc(sc.autre)}</div></div>
+      </div>
+      <button class="cta impact-continue" onclick="goDecision()">Continuer</button>
+    </div>
+  `;
+}
+function goDecision(){ S.screen='decision'; render(); }
+
+/* ---------- DECISION ---------- */
+function renderDecision(el){
+  el.innerHTML = `
+    <div class="dec-title">Ton commentaire est toujours prêt à partir.<br>Tu fais quoi ?</div>
+    <div class="dec-list">
+      <div class="dbtn primary" onclick="decide('envoye')"><span class="dic">📤</span><div><div class="dtxt">Envoyer quand même</div><div class="dsub">Le message part tel quel, publiquement</div></div></div>
+      <div class="dbtn dm" onclick="decide('dm')"><span class="dic">✉️</span><div><div class="dtxt">Envoyer en message privé</div><div class="dsub">Même message, mais en DM plutôt qu'en public</div></div></div>
+      <div class="dbtn soft" onclick="goReform()"><span class="dic">✏️</span><div><div class="dtxt">Reformuler</div><div class="dsub">Garder l'idée, changer le ton</div></div></div>
+      <div class="dbtn ghost" onclick="decide('annule')"><span class="dic">🚫</span><div><div class="dtxt">Ne pas poster</div><div class="dsub">Le message reste dans le brouillon</div></div></div>
+    </div>
+  `;
+}
+function decide(finalAction, reformInfo){
+  const sc = currentScenario();
+  const entry = {id:sc.id, label:sc.caption, initial:'envoye', final:finalAction};
+  if(reformInfo) entry.reform = reformInfo;
+  S.results.push(entry);
+  advanceRound();
+}
+
+/* ---------- REFORM ---------- */
+function goReform(){ S.screen='reform'; render(); }
+function renderReform(el){
+  const sc = currentScenario();
+  el.innerHTML = `
+    <button class="link-min" style="text-align:left; margin-bottom:10px;" onclick="goDecision()">← Retour</button>
+    <div class="reform-orig"><div class="rlabel">Message original</div><div class="rtext">${esc(sc.draft)}</div></div>
+    <div class="reform-title">Même idée, autre ton. Choisis une reformulation :</div>
+    <div class="reform-opts" id="reformOpts">${(sc.reform||[]).map((r,i)=>`<div class="ropt" onclick="chooseReform(${i})">${esc(r)}</div>`).join('')}</div>
+    <div class="reform-title" style="margin-top:18px;">Ou écris la tienne :</div>
+    <textarea class="ed-textarea" id="ownReform" placeholder="Écris ta propre reformulation…" rows="3"></textarea>
+    <button class="cta" style="margin-top:10px;" onclick="chooseOwnReform()">Envoyer ma reformulation</button>
+    <div id="confirmZone"></div>
+  `;
+}
+function chooseReform(i){
+  const sc = currentScenario();
+  const text = (sc.reform||[])[i] || '';
+  document.querySelectorAll('#reformOpts .ropt').forEach((n,idx)=>{ if(idx===i) n.classList.add('chosen'); });
+  document.getElementById('confirmZone').innerHTML = `
+    <div class="reform-confirm"><div class="ic">✅</div><div class="msg">Message reformulé et envoyé.<br>Le ton change, l'intention reste la tienne.</div>
+    <button class="cta" style="margin-top:18px" onclick="decide('reformule', {type:'preset', text: ${attrJson(text)}})">Continuer</button></div>
+  `;
+}
+function chooseOwnReform(){
+  const v = document.getElementById('ownReform').value.trim();
+  if(!v){ return; }
+  document.getElementById('confirmZone').innerHTML = `
+    <div class="reform-confirm"><div class="ic">✅</div><div class="msg">Ta reformulation a été envoyée.<br>Le ton change, l'intention reste la tienne.</div>
+    <button class="cta" style="margin-top:18px" onclick="decide('reformule', {type:'custom', text: ${attrJson(v)}})">Continuer</button></div>
+  `;
+}
+
+/* ---------- END ---------- */
+async function finishSession(){
+  await loadPhrases();
+  const c = {supprime_direct:0, annule:0, reformule:0, dm:0, envoye:0};
+  S.results.forEach(r=>{
+    if(r.initial==='supprime') c.supprime_direct++;
+    else if(r.final==='annule') c.annule++;
+    else if(r.final==='reformule') c.reformule++;
+    else if(r.final==='dm') c.dm++;
+    else c.envoye++;
+  });
+  const reflect = c.annule + c.reformule + c.dm;
+  let pool;
+  if(c.envoye > reflect) pool = PHRASES_STORE.impact.length? PHRASES_STORE.impact : DEFAULT_PHRASES.impact;
+  else if(c.reformule >= c.annule && c.reformule >= c.supprime_direct) pool = PHRASES_STORE.positive.length? PHRASES_STORE.positive : DEFAULT_PHRASES.positive;
+  else pool = (PHRASES_STORE.neutre||[]).concat(PHRASES_STORE.positive||[]);
+  if(!pool || !pool.length) pool = DEFAULT_PHRASES.positive;
+  S.finalPhrase = pool[Math.floor(Math.random()*pool.length)];
+  S.screen='end';
+  render();
+  pushGroupStats();
+}
+function renderEnd(el){
+  el.innerHTML = `
+    <div class="end-wrap">
+      <div class="end-mark">✦</div>
+      <div class="end-phrase">“${esc(S.finalPhrase)}”</div>
+      <div class="end-sub">Fin de l'expérience.</div>
+      <button class="cta" style="max-width:260px" onclick="backToStart()">Retour à l'accueil</button>
+    </div>
+  `;
+}
+
+/* ---------- ADMIN LOGIN ---------- */
+function goAdminLogin(){ S.screen='adminlogin'; S.adminErr=''; render(); }
+function renderAdminLogin(el){
+  el.innerHTML = `
+    <div class="eyebrow">Accès admin</div>
+    <h1 class="title-hero" style="font-size:28px;">Code animateur</h1>
+    <p class="sub">Entre le code pour voir les statistiques globales, gérer les posts et les phrases.</p>
+    <div class="code-box">
+      <input class="code-input" id="adminCodeInput" type="tel" inputmode="numeric" maxlength="8" placeholder="••••" autofocus>
+      ${S.adminErr ? `<div class="err-msg">${S.adminErr}</div>` : ''}
+      <button class="cta" onclick="submitAdminCode()">Valider</button>
+      <button class="link-min" onclick="backToStart()">Retour</button>
+    </div>
+  `;
+  const inp = document.getElementById('adminCodeInput');
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') submitAdminCode(); });
+}
+async function submitAdminCode(){
+  const val = document.getElementById('adminCodeInput').value.trim();
+  const real = await getAdminCode();
+  if(val === real){
+    await Promise.all([loadScenarios(), loadDisabled(), loadCustomImages(), loadPhrases(), loadRounds()]);
+    S.screen='admin'; S.adminTab='stats'; S.adminErr=''; render();
+  }
+  else { S.adminErr='Code incorrect.'; render(); }
+}
+
+/* ---------- ADMIN DASHBOARD ---------- */
+function switchAdminTab(tab){ S.adminTab=tab; S.confirmReset=false; S.confirmLibReset=false; S.confirmCodeMsg=''; S.roundsMsg=''; S.postEditor=null; render(); }
+function setStatsDate(v){ S.statsDate = v; render(); }
+
+async function renderAdmin(el){
+  el.innerHTML = `
+    <div class="eyebrow">Espace admin</div>
+    <div class="admin-tabs">
+      <div class="atab ${S.adminTab==='stats'?'active':''}" onclick="switchAdminTab('stats')">Stats</div>
+      <div class="atab ${S.adminTab==='posts'?'active':''}" onclick="switchAdminTab('posts')">Posts</div>
+      <div class="atab ${S.adminTab==='phrases'?'active':''}" onclick="switchAdminTab('phrases')">Phrases</div>
+      <div class="atab ${S.adminTab==='settings'?'active':''}" onclick="switchAdminTab('settings')">Réglages</div>
+    </div>
+    <div id="adminContent"><p class="gstat-note">Chargement…</p></div>
+    <button class="link-min" onclick="backToStart()">Retour à l'accueil</button>
+  `;
+  const c = document.getElementById('adminContent');
+  if(S.adminTab==='stats') await fillStats(c);
+  else if(S.adminTab==='posts') await fillPosts(c);
+  else if(S.adminTab==='phrases') await fillPhrases(c);
+  else await fillSettings(c);
+}
+
+/* --- PDF report --- */
+async function downloadPdfReport(){
+  const btn = document.getElementById('pdfReportBtn');
+  if(btn){ btn.textContent = 'Génération du PDF…'; btn.disabled = true; }
+  try{
+    await loadJsPDF();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'pt', format:'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 42;
+    let y = margin;
+
+    function ensureSpace(needed){
+      if(y + needed > pageH - margin){ doc.addPage(); y = margin; }
+    }
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(20,20,25);
+    const dateLabel = S.statsDate!=='all' ? formatDateFr(S.statsDate) : 'toutes dates';
+    doc.text("Avant d'envoyer — Rapport (" + dateLabel + ")", margin, y); y += 22;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(120,120,130);
+    const now = new Date();
+    doc.text('Généré le ' + now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR').slice(0,5), margin, y); y += 30;
+
+    const aggFull = await fetchGroupStats();
+    const agg = (S.statsDate!=='all' && aggFull.byDate && aggFull.byDate[S.statsDate]) ? aggFull.byDate[S.statsDate] : aggFull;
+    const t = agg.totals;
+    const total = t.supprime_direct + t.annule + t.reformule + (t.dm||0) + t.envoye;
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(20,20,25);
+    doc.text('Vue d’ensemble', margin, y); y += 18;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(90,90,100);
+    doc.text(`${agg.sessions} session(s) terminée(s) — ${total} décision(s) au total`, margin, y); y += 22;
+
+    const rows = [
+      { label:'Supprimé direct', value:t.supprime_direct, color:[150,147,159] },
+      { label:'Annulé après réflexion', value:t.annule, color:[56,217,201] },
+      { label:'Reformulé', value:t.reformule, color:[124,108,240] },
+      { label:'Envoyé en DM', value:t.dm||0, color:[255,180,84] },
+      { label:'Envoyé quand même', value:t.envoye, color:[255,84,112] }
+    ];
+    y = drawBarChartPDF(doc, margin, y, pageW - margin*2, rows, { barHeight:16, gap:10, labelWidth:150 });
+    y += 24;
+
+    ensureSpace(30);
+    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(20,20,25);
+    doc.text('Détail par situation', margin, y); y += 20;
+
+    const ids = Object.keys(agg.byScenario);
+    if(!ids.length){
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(120,120,130);
+      doc.text('Aucune donnée pour le moment.', margin, y); y += 16;
+    }
+
+    ids.forEach(id=>{
+      const b = agg.byScenario[id];
+      const known = ALL_SCENARIOS.find(s=>s.id===id);
+      const title = stripEmoji(known ? known.caption : (b.label || id));
+      const scTotal = b.supprime_direct + b.annule + b.reformule + (b.dm||0) + b.envoye;
+
+      ensureSpace(50);
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(30,30,35);
+      const titleLines = doc.splitTextToSize(title, pageW - margin*2);
+      doc.text(titleLines, margin, y); y += titleLines.length * 13 + 3;
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,110);
+      doc.text(`Supprimé : ${b.supprime_direct}    Annulé : ${b.annule}    Reformulé : ${b.reformule}    DM : ${b.dm||0}    Envoyé : ${b.envoye}    (total : ${scTotal})`, margin, y);
+      y += 16;
+
+      const presetEntries = Object.entries(b.reformCounts||{}).sort((a,c)=>c[1]-a[1]);
+      const customList = b.customReforms || [];
+
+      if(presetEntries.length){
+        ensureSpace(14);
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(70,70,80);
+        doc.text('Reformulations proposées choisies :', margin+8, y); y += 13;
+        doc.setFont('helvetica','normal'); doc.setTextColor(90,90,100);
+        presetEntries.forEach(([txt,n])=>{
+          const lines = doc.splitTextToSize(`•  ${stripEmoji(txt)} — ${n} fois`, pageW - margin*2 - 16);
+          ensureSpace(lines.length*12 + 2);
+          doc.text(lines, margin+12, y); y += lines.length*12 + 2;
+        });
+        y += 4;
+      }
+      if(customList.length){
+        ensureSpace(14);
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(70,70,80);
+        doc.text(`Reformulations personnelles (${customList.length}) :`, margin+8, y); y += 13;
+        doc.setFont('helvetica','italic'); doc.setTextColor(90,90,100);
+        customList.forEach(txt=>{
+          const lines = doc.splitTextToSize(`“${stripEmoji(txt)}”`, pageW - margin*2 - 16);
+          ensureSpace(lines.length*12 + 2);
+          doc.text(lines, margin+12, y); y += lines.length*12 + 2;
+        });
+        y += 4;
+      }
+
+      y += 8;
+      ensureSpace(10);
+      doc.setDrawColor(225,225,230);
+      doc.line(margin, y, pageW - margin, y);
+      y += 18;
+    });
+
+    const fileDatePart = S.statsDate!=='all' ? S.statsDate : now.toISOString().slice(0,10)+'-toutes-dates';
+    doc.save('rapport-avant-denvoyer-' + fileDatePart + '.pdf');
+  }catch(e){
+    console.error('PDF generation failed', e);
+    alert('Impossible de générer le PDF (' + (e && e.message ? e.message : 'erreur inconnue') + '). Une connexion internet est nécessaire la première fois pour charger le générateur PDF.');
+  }finally{
+    if(btn){ btn.textContent = '📄 Télécharger le rapport PDF'; btn.disabled = false; }
+  }
+}
+
+/* --- Stats tab --- */
+async function fillStats(c){
+  const agg = await fetchGroupStats();
+  const dateKeys = Object.keys(agg.byDate||{}).sort().reverse();
+  const node = (S.statsDate!=='all' && agg.byDate && agg.byDate[S.statsDate]) ? agg.byDate[S.statsDate] : agg;
+  const t = node.totals;
+  const total = t.supprime_direct+t.annule+t.reformule+(t.dm||0)+t.envoye || 1;
+  const rows = [
+    ['Supprimé direct', t.supprime_direct, 'var(--muted)'],
+    ['Annulé après réflexion', t.annule, 'var(--teal)'],
+    ['Reformulé', t.reformule, 'var(--violet)'],
+    ['Envoyé en DM', t.dm||0, 'var(--amber)'],
+    ['Envoyé quand même', t.envoye, 'var(--coral)']
+  ];
+  let html = `
+    <button class="cta" id="pdfReportBtn" style="margin-bottom:16px;" onclick="downloadPdfReport()">📄 Télécharger le rapport PDF</button>
+    <div class="ed-label">Filtrer par date</div>
+    <select class="ed-select" id="statsDateSelect" onchange="setStatsDate(this.value)" style="margin-bottom:16px;">
+      <option value="all" ${S.statsDate==='all'?'selected':''}>Toutes les dates (${agg.sessions})</option>
+      ${dateKeys.map(d=>`<option value="${d}" ${S.statsDate===d?'selected':''}>${formatDateFr(d)} (${agg.byDate[d].sessions})</option>`).join('')}
+    </select>
+    <div class="big-num">${node.sessions}</div>
+    <p class="gstat-note">session${node.sessions>1?'s terminées':' terminée'} — ${total} décisions au total${S.statsDate!=='all'?' — '+formatDateFr(S.statsDate):''}.</p>
+    <div class="sum-block-title">Répartition${S.statsDate!=='all'?' ('+formatDateFr(S.statsDate)+')':' globale'}</div>
+    ${rows.map(r=>`<div class="bar-row"><div class="bar-label">${r[0]}</div><div class="bar-track"><div class="bar-fill" style="width:${(r[1]/total*100)}%; background:${r[2]}"></div></div><div class="bar-val">${r[1]}</div></div>`).join('')}
+    <div class="sum-block-title">Par situation</div>
+  `;
+  const ids = Object.keys(node.byScenario);
+  if(!ids.length) html += `<p class="gstat-note">Pas encore de données par post.</p>`;
+  ids.forEach(id=>{
+    const b = node.byScenario[id];
+    const scTotal = b.supprime_direct+b.annule+b.reformule+(b.dm||0)+b.envoye;
+    const known = ALL_SCENARIOS.find(s=>s.id===id);
+    const title = known ? `${known.icon||'📱'} “${known.caption}”` : `📦 “${b.label||id}” (post supprimé)`;
+    const presetEntries = Object.entries(b.reformCounts||{}).sort((a,b2)=>b2[1]-a[1]);
+    const customList = b.customReforms||[];
+    let reformDetail = '';
+    if(presetEntries.length || customList.length){
+      reformDetail = `<div class="reform-detail">
+        <div class="rdt">Reformulations choisies (${b.reformule})</div>
+        ${presetEntries.map(([txt,n])=>`<div class="rd-row"><span>${esc(txt)}</span><b>${n}</b></div>`).join('')}
+        ${customList.length ? `<div class="rdt" style="margin-top:8px;">Reformulations personnelles (${customList.length})</div>${customList.map(t=>`<div class="rd-custom">“${esc(t)}”</div>`).join('')}` : ''}
+      </div>`;
+    }
+    html += `
+      <div class="sc-card">
+        <div class="sc-title">${title} — ${scTotal} réponse${scTotal>1?'s':''}</div>
+        <div class="sc-mini-row">
+          <span>Supprimé : <b>${b.supprime_direct}</b></span>
+          <span>Annulé : <b>${b.annule}</b></span>
+          <span>Reformulé : <b>${b.reformule}</b></span>
+          <span>DM : <b>${b.dm||0}</b></span>
+          <span>Envoyé : <b>${b.envoye}</b></span>
+        </div>
+        ${reformDetail}
+      </div>`;
+  });
+  c.innerHTML = html;
+}
+
+/* --- Posts tab --- */
+async function fillPosts(c){
+  if(S.postEditor){ renderPostEditor(c); return; }
+  let html = '';
+  if(S.postSavedMsg){
+    const isWarn = S.postSavedMsg.indexOf('⚠️')===0;
+    html += `<div class="${isWarn?'gstat-note':'set-ok'}" style="margin-bottom:12px; ${isWarn?'color:var(--amber);':''}">${S.postSavedMsg}</div>`;
+    S.postSavedMsg='';
+  }
+  html += `<button class="cta" style="margin-bottom:16px;" onclick="openNewPost()">+ Nouveau post</button>`;
+  if(!ALL_SCENARIOS.length) html += `<p class="gstat-note">Aucun post pour l’instant.</p>`;
+  ALL_SCENARIOS.forEach(s=>{
+    const plat = PLATFORMS[s.platform] || PLATFORMS.insta;
+    const active = !DISABLED_IDS.includes(s.id);
+    const img = CUSTOM_IMAGES[s.id];
+    html += `
+      <div class="post-row">
+        <div class="pr-thumb" style="background:${img?'#000':(s.grad||'#333')}">${img?`<img src="${img}">`:(s.icon||'📱')}</div>
+        <div class="pr-meta">
+          <div class="pr-title">${plat.mono} · ${esc((s.caption||'').slice(0,34))}</div>
+          <div class="pr-sub">${esc(s.author||'')}</div>
+        </div>
+        <div class="pr-actions">
+          <label class="switch"><input type="checkbox" ${active?'checked':''} onchange="toggleScenarioActive('${s.id}', this.checked)"><span class="slider"></span></label>
+          <button class="minibtn" onclick="openEditPost('${s.id}')">✎</button>
+          <button class="minibtn reset" onclick="deletePost('${s.id}')">✕</button>
+        </div>
+      </div>`;
+  });
+  c.innerHTML = html;
+}
+
+async function toggleScenarioActive(id, checked){
+  if(checked) DISABLED_IDS = DISABLED_IDS.filter(x=>x!==id);
+  else if(!DISABLED_IDS.includes(id)) DISABLED_IDS.push(id);
+  await saveDisabled();
+}
+async function deletePost(id){
+  if(!confirm('Supprimer définitivement ce post ?')) return;
+  ALL_SCENARIOS = ALL_SCENARIOS.filter(s=>s.id!==id);
+  await saveScenarios();
+  DISABLED_IDS = DISABLED_IDS.filter(x=>x!==id);
+  await saveDisabled();
+  if(CUSTOM_IMAGES[id]){ delete CUSTOM_IMAGES[id]; await saveCustomImages(); }
+  render();
+}
+
+function openNewPost(){
+  S.postEditor = { id:null, platform:'insta', author:'', time:'à l’instant', caption:'', draft:'', toi:'', autre:'',
+    comments:[['','']], reform:['','',''], imgPreview:null };
+  window.__edPhotoTemp = null;
+  render();
+}
+function openEditPost(id){
+  const sc = ALL_SCENARIOS.find(s=>s.id===id);
+  if(!sc) return;
+  S.postEditor = JSON.parse(JSON.stringify(sc));
+  if(!S.postEditor.comments || !S.postEditor.comments.length) S.postEditor.comments=[['','']];
+  if(!S.postEditor.reform || !S.postEditor.reform.length) S.postEditor.reform=['','',''];
+  S.postEditor.imgPreview = CUSTOM_IMAGES[id] || null;
+  window.__edPhotoTemp = null;
+  render();
+}
+function closeEditor(){ S.postEditor=null; render(); }
+
+function renderPostEditor(c){
+  const ed = S.postEditor;
+  c.innerHTML = `
+    <div class="ed-label">Réseau</div>
+    <select class="ed-select" id="edPlatform">
+      <option value="insta" ${ed.platform==='insta'?'selected':''}>Instagram</option>
+      <option value="tiktok" ${ed.platform==='tiktok'?'selected':''}>TikTok</option>
+      <option value="snap" ${ed.platform==='snap'?'selected':''}>Snapchat</option>
+      <option value="fb" ${ed.platform==='fb'?'selected':''}>Facebook</option>
+    </select>
+
+    <div class="two-col">
+      <div><div class="ed-label">Auteur</div><input class="mini-input" id="edAuthor" value="${esc(ed.author)}" placeholder="pseudo"></div>
+      <div><div class="ed-label">Heure affichée</div><input class="mini-input" id="edTime" value="${esc(ed.time)}" placeholder="2 h"></div>
+    </div>
+
+    <div class="ed-label">Photo du post</div>
+    <div class="ed-photo-row">
+      <div id="edPhotoPreview">${ed.imgPreview? `<img src="${ed.imgPreview}">` : '📷'}</div>
+      <input type="file" id="edPhotoInput" accept="image/*" style="display:none" onchange="handleEditorPhoto(event)">
+      <button type="button" class="minibtn" onclick="document.getElementById('edPhotoInput').click()">Galerie / fichier</button>
+      ${ed.imgPreview? `<button type="button" class="minibtn reset" onclick="clearEditorPhoto()">Retirer</button>` : ''}
+    </div>
+    <p class="gstat-note" style="margin:8px 0 4px;">Sur mobile, si la galerie ne s'ouvre pas, colle plutôt un lien direct vers une image (URL se terminant par .jpg/.png par exemple) :</p>
+    <div class="ed-photo-row">
+      <input class="mini-input" id="edPhotoUrl" placeholder="https://...jpg" style="flex:1;">
+      <button type="button" class="minibtn" onclick="useEditorPhotoUrl()">Utiliser ce lien</button>
+    </div>
+
+    <div class="ed-label">Légende du post</div>
+    <textarea class="ed-textarea" id="edCaption" placeholder="Nouvelle coupe 😎">${esc(ed.caption)}</textarea>
+
+    <div class="ed-label">Commentaires déjà visibles</div>
+    <div id="commentRows"></div>
+    <button type="button" class="addrow-btn" onclick="addCommentRow()">+ Ajouter un commentaire</button>
+
+    <div class="ed-label">Commentaire prêt à envoyer (celui que le participant doit gérer)</div>
+    <textarea class="ed-textarea" id="edDraft" placeholder="Mdrrr t’as fait quoi là 😂">${esc(ed.draft)}</textarea>
+
+    <div class="ed-label">Ressenti — Toi (l'intention)</div>
+    <input class="mini-input" id="edToi" value="${esc(ed.toi)}" placeholder="De l’humour entre potes.">
+
+    <div class="ed-label">Ressenti — L'autre (la réception)</div>
+    <input class="mini-input" id="edAutre" value="${esc(ed.autre)}" placeholder="Une humiliation, lue par tout le monde.">
+
+    <div class="ed-label">Propositions de reformulation</div>
+    <div id="reformRows"></div>
+    <button type="button" class="addrow-btn" onclick="addReformRow()">+ Ajouter une reformulation</button>
+
+    <div class="ed-actions">
+      <button class="set-btn" style="background:var(--surface3); color:var(--text);" onclick="closeEditor()">Annuler</button>
+      <button class="cta" onclick="savePostEditor()">Enregistrer</button>
+    </div>
+  `;
+  renderCommentRows(ed.comments);
+  renderReformRows(ed.reform);
+}
+
+function renderCommentRows(arr){
+  document.getElementById('commentRows').innerHTML = arr.map((cm,i)=>`
+    <div class="comment-row-edit">
+      <input class="mini-input ca" placeholder="Auteur" value="${esc(cm[0])}">
+      <input class="mini-input ct" placeholder="Commentaire" value="${esc(cm[1])}">
+      <button type="button" class="minibtn reset" onclick="removeCommentRow(${i})">✕</button>
+    </div>`).join('');
+}
+function readCommentsFromDOM(){
+  return Array.from(document.querySelectorAll('#commentRows .comment-row-edit')).map(r=>[r.querySelector('.ca').value, r.querySelector('.ct').value]);
+}
+function addCommentRow(){ const arr = readCommentsFromDOM(); arr.push(['','']); renderCommentRows(arr); }
+function removeCommentRow(i){ const arr = readCommentsFromDOM(); arr.splice(i,1); renderCommentRows(arr.length?arr:[['','']]); }
+
+function renderReformRows(arr){
+  document.getElementById('reformRows').innerHTML = arr.map((t,i)=>`
+    <div class="reform-row-edit">
+      <input class="mini-input rf" value="${esc(t)}" placeholder="Reformulation ${i+1}">
+      <button type="button" class="minibtn reset" onclick="removeReformRow(${i})">✕</button>
+    </div>`).join('');
+}
+function readReformFromDOM(){ return Array.from(document.querySelectorAll('#reformRows .reform-row-edit .rf')).map(i=>i.value); }
+function addReformRow(){ const arr = readReformFromDOM(); arr.push(''); renderReformRows(arr); }
+function removeReformRow(i){ const arr = readReformFromDOM(); if(arr.length<=1) return; arr.splice(i,1); renderReformRows(arr); }
+
+async function handleEditorPhoto(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const dataUrl = await fileToCompressedDataURL(file);
+    window.__edPhotoTemp = dataUrl;
+    document.getElementById('edPhotoPreview').innerHTML = `<img src="${dataUrl}">`;
+  }catch(err){ alert('Impossible de lire cette image.'); }
+}
+function clearEditorPhoto(){
+  window.__edPhotoTemp = 'REMOVE';
+  document.getElementById('edPhotoPreview').innerHTML = '📷';
+  const u = document.getElementById('edPhotoUrl'); if(u) u.value='';
+}
+function useEditorPhotoUrl(){
+  const v = document.getElementById('edPhotoUrl').value.trim();
+  if(!v){ return; }
+  if(!/^https?:\/\//i.test(v)){ alert('Merci de coller un lien complet commençant par http:// ou https://'); return; }
+  window.__edPhotoTemp = v;
+  document.getElementById('edPhotoPreview').innerHTML = `<img src="${v}" onerror="this.parentElement.innerHTML='⚠️'; alert('Cette image ne s’est pas chargée. Vérifie le lien.');">`;
+}
+
+async function savePostEditor(){
+  const platform = document.getElementById('edPlatform').value;
+  const author = document.getElementById('edAuthor').value.trim() || 'anonyme';
+  const time = document.getElementById('edTime').value.trim() || 'à l’instant';
+  const caption = document.getElementById('edCaption').value.trim();
+  const draft = document.getElementById('edDraft').value.trim();
+  const toi = document.getElementById('edToi').value.trim() || 'Un message envoyé sans trop y penser.';
+  const autre = document.getElementById('edAutre').value.trim() || 'Un message reçu qui peut faire mal.';
+  const comments = readCommentsFromDOM().filter(cm=>cm[0].trim()||cm[1].trim());
+  const reform = readReformFromDOM().map(t=>t.trim()).filter(Boolean);
+
+  if(!caption || !draft || reform.length<1){
+    alert('Merci de remplir au minimum : la légende, le commentaire à envoyer, et au moins une reformulation.');
+    return;
+  }
+
+  const id = S.postEditor.id || ('custom_' + Date.now());
+  const icon = {insta:'📸', tiktok:'🎬', snap:'👻', fb:'📰'}[platform] || '📱';
+  const grad = S.postEditor.grad || 'linear-gradient(160deg,#3a3a46,#22222b)';
+  const scenarioObj = { id, platform, author, time, caption, draft, toi, autre,
+    comments: comments.length?comments:[['???','...']], reform, icon, grad };
+
+  const saveBtn = document.querySelector('.ed-actions .cta');
+  if(saveBtn){ saveBtn.textContent = 'Enregistrement…'; saveBtn.disabled = true; }
+
+  // Apply the edit in memory FIRST. This always succeeds and is what the
+  // rest of the app (session, stats, posts list) reads from — so the change
+  // takes effect immediately even if the permanent save below has trouble.
+  const idx = ALL_SCENARIOS.findIndex(s=>s.id===id);
+  if(idx>=0) ALL_SCENARIOS[idx] = scenarioObj; else ALL_SCENARIOS.push(scenarioObj);
+
+  if(window.__edPhotoTemp === 'REMOVE'){ delete CUSTOM_IMAGES[id]; }
+  else if(window.__edPhotoTemp){ CUSTOM_IMAGES[id] = window.__edPhotoTemp; }
+  window.__edPhotoTemp = null;
+
+  // Best-effort persistence — never blocks or discards the edit above.
+  const okA = await saveScenarios();
+  const okB = await saveCustomImages();
+  const persistOk = okA && okB;
+
+  S.postEditor = null;
+  S.postSavedMsg = persistOk
+    ? 'Post enregistré ✓'
+    : '⚠️ Post appliqué pour cette session, mais la sauvegarde permanente a échoué (stockage momentanément indisponible). Reste sur cette tablette / cet onglet pour ne pas le perdre, et réessaie une petite modification dans un instant pour la faire persister.';
+  render();
+}
+
+/* --- Phrases tab --- */
+async function fillPhrases(c){
+  const cats = [['positive','Positives'],['impact','Impactantes'],['neutre','Neutres']];
+  let html = `<p class="gstat-note">Ces phrases s’affichent à la toute fin de l’expérience, selon les choix du participant.</p>`;
+  cats.forEach(([key,label])=>{
+    html += `<div class="sum-block-title">${label}</div>`;
+    (PHRASES_STORE[key]||[]).forEach((p,i)=>{
+      html += `<div class="phrase-row"><span>${esc(p)}</span><button class="minibtn reset" onclick="deletePhrase('${key}',${i})">✕</button></div>`;
+    });
+    html += `<div class="add-phrase-row"><input class="mini-input" id="newPhrase_${key}" placeholder="Nouvelle phrase…"><button class="minibtn" onclick="addPhrase('${key}')">Ajouter</button></div>`;
+  });
+  c.innerHTML = html;
+}
+async function addPhrase(key){
+  const inp = document.getElementById('newPhrase_'+key);
+  const v = inp.value.trim();
+  if(!v) return;
+  PHRASES_STORE[key].push(v);
+  await savePhrases();
+  render();
+}
+async function deletePhrase(key, i){
+  PHRASES_STORE[key].splice(i,1);
+  await savePhrases();
+  render();
+}
+
+/* --- Settings tab --- */
+function storageAvailable(){
+  if(firebaseEnabled()) return true; // optimistic; real errors surface via the save banners
+  return typeof window.storage !== 'undefined' && window.storage && typeof window.storage.set === 'function';
+}
+async function fillSettings(c){
+  const activeCount = activeScenarios().length;
+  const stOk = storageAvailable();
+  let statusMsg;
+  if(firebaseEnabled()){
+    statusMsg = '☁️ Mode en ligne actif (Firebase) — les posts, réglages et rapports sont sauvegardés en permanence et partagés entre tous les appareils.';
+  } else if(stOk){
+    statusMsg = '✅ Disponible — tes modifications sont sauvegardées et partagées entre tablettes.';
+  } else {
+    statusMsg = '⚠️ Indisponible dans cet aperçu — les modifications restent actives pour cette session mais ne seront pas conservées après rechargement. Pour une sauvegarde permanente et un accès en ligne, configure Firebase (voir le guide fourni) et héberge ce fichier.';
+  }
+  c.innerHTML = `
+    <div class="set-block">
+      <div class="set-title">Stockage permanent</div>
+      <p class="gstat-note">${statusMsg}</p>
+    </div>
+    <div class="set-block">
+      <div class="set-title">Nombre de posts par session</div>
+      <input class="set-input" id="roundsInput" type="number" min="1" max="${Math.max(activeCount,1)}" value="${Math.min(ROUNDS_COUNT, Math.max(activeCount,1))}">
+      <button class="set-btn primary" onclick="saveRoundsSetting()">Enregistrer</button>
+      ${S.roundsMsg? `<div class="set-ok">${S.roundsMsg}</div>`:''}
+      <p class="gstat-note" style="margin-top:8px;">${activeCount} post(s) actif(s) disponible(s) actuellement (onglet Posts).</p>
+    </div>
+    <div class="set-block">
+      <div class="set-title">Changer le code admin</div>
+      <input class="set-input" id="newCodeInput" type="tel" inputmode="numeric" maxlength="8" placeholder="Nouveau code (4 chiffres min.)">
+      <button class="set-btn primary" onclick="changeAdminCode()">Enregistrer le code</button>
+      ${S.confirmCodeMsg? `<div class="set-ok">${S.confirmCodeMsg}</div>`:''}
+    </div>
+    <div class="set-block">
+      <div class="set-title">Réinitialiser les statistiques</div>
+      <p class="gstat-note" style="margin-bottom:10px;">Supprime toutes les statistiques globales (sessions, par situation). Les posts et photos ne sont pas affectés.</p>
+      ${S.confirmReset ? `
+        <button class="set-btn danger" onclick="doResetStats()">Confirmer la suppression</button>
+        <button class="set-btn" style="margin-top:8px; background:var(--surface3); color:var(--text);" onclick="cancelResetStats()">Annuler</button>
+      ` : `<button class="set-btn danger" onclick="askResetStats()">Réinitialiser les statistiques</button>`}
+    </div>
+    <div class="set-block">
+      <div class="set-title">Réinitialiser la bibliothèque de posts</div>
+      <p class="gstat-note" style="margin-bottom:10px;">Remet les 8 posts d’origine et supprime tous les posts personnalisés (et leurs photos).</p>
+      ${S.confirmLibReset ? `
+        <button class="set-btn danger" onclick="doResetLibrary()">Confirmer la réinitialisation</button>
+        <button class="set-btn" style="margin-top:8px; background:var(--surface3); color:var(--text);" onclick="cancelLibReset()">Annuler</button>
+      ` : `<button class="set-btn danger" onclick="askLibReset()">Réinitialiser les posts</button>`}
+    </div>
+  `;
+}
+async function saveRoundsSetting(){
+  const v = parseInt(document.getElementById('roundsInput').value, 10);
+  const n = isNaN(v) || v<1 ? DEFAULT_ROUNDS : v;
+  ROUNDS_COUNT = n;
+  await saveRounds(n);
+  S.roundsMsg = 'Enregistré ✓';
+  render();
+}
+async function changeAdminCode(){
+  const v = document.getElementById('newCodeInput').value.trim();
+  if(v.length < 4){ S.confirmCodeMsg='Le code doit contenir au moins 4 caractères.'; render(); return; }
+  await setAdminCode(v);
+  S.confirmCodeMsg='Code mis à jour ✓';
+  render();
+}
+function askResetStats(){ S.confirmReset=true; render(); }
+function cancelResetStats(){ S.confirmReset=false; render(); }
+async function doResetStats(){ await resetGroupStats(); S.confirmReset=false; render(); }
+
+function askLibReset(){ S.confirmLibReset=true; render(); }
+function cancelLibReset(){ S.confirmLibReset=false; render(); }
+async function doResetLibrary(){
+  ALL_SCENARIOS = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+  await saveScenarios();
+  DISABLED_IDS = [];
+  await saveDisabled();
+  Object.keys(CUSTOM_IMAGES).forEach(k=>{ if(!DEFAULT_SCENARIOS.find(s=>s.id===k)) delete CUSTOM_IMAGES[k]; });
+  await saveCustomImages();
+  S.confirmLibReset=false;
+  render();
+}
+
+/* ---------- CLOCK ---------- */
+function tickClock(){
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  const clk = document.getElementById('clock');
+  if(clk) clk.textContent = `${h}:${m}`;
+}
+setInterval(tickClock, 15000);
+tickClock();
+
+/* ---------- INIT ---------- */
+(async function init(){
+  await Promise.all([loadScenarios(), loadDisabled(), loadCustomImages(), loadRounds()]);
+  render();
+})();
+</script>
+</body>
+</html>
