@@ -309,18 +309,12 @@ const DEFAULT_PHRASES = {
 const DEFAULT_ADMIN_CODE = '4800';
 const DEFAULT_ROUNDS = 6;
 
-/* ============================================================================
-   STOCKAGE EN LIGNE (OPTIONNEL) — Firebase Firestore
-   ----------------------------------------------------------------------------
-   Par défaut (FIREBASE_CONFIG = null), l'appli utilise le stockage fourni par
-   l'aperçu Claude (window.storage) : pratique pour tester, mais limité à la
-   session en cours et à cet onglet.
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-   Pour une vraie appli EN LIGNE, avec sauvegarde permanente entre sessions et
-   entre appareils : crée un projet Firebase gratuit (voir le guide fourni),
-   colle ta configuration ci-dessous, puis héberge ce fichier HTML n'importe où
-   (Netlify, Firebase Hosting, etc.). Rien d'autre à changer dans le code.
-   ============================================================================ */
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA36SNBdaTM3c51yfL36SbZOl7C6XWP9FE",
   authDomain: "avant-denvoyer.firebaseapp.com",
@@ -329,6 +323,9 @@ const firebaseConfig = {
   messagingSenderId: "780039176961",
   appId: "1:780039176961:web:364842edcf096547131100"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 */
 
 function firebaseEnabled(){ return !!FIREBASE_CONFIG; }
