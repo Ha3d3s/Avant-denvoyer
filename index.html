@@ -240,6 +240,34 @@ body{ margin:0; background:radial-gradient(circle at 50% 0%, #17151f 0%, #0A0A0E
 </style>
 </head>
 <body>
+<script>
+/* Filet de sécurité : si le script principal plante (erreur de syntaxe dans
+   une config collée à la main, script externe qui échoue, etc.), on affiche
+   l'erreur directement à l'écran au lieu de laisser un écran noir silencieux. */
+(function(){
+  function showFatalError(msg){
+    var box = document.getElementById('fatalErrorBox');
+    if(!box){
+      box = document.createElement('div');
+      box.id = 'fatalErrorBox';
+      box.style.cssText = 'position:fixed;inset:0;background:#1a0508;color:#ffb4c0;z-index:99999;padding:20px;font-family:monospace;font-size:12.5px;overflow:auto;white-space:pre-wrap;line-height:1.5;';
+      box.innerHTML = '<div style="font-size:15px;font-weight:bold;color:#fff;margin-bottom:12px;">⚠️ L\'appli n\'a pas pu démarrer</div><div style="margin-bottom:12px;">Copie le message ci-dessous et envoie-le pour obtenir de l\'aide :</div>';
+      document.body.appendChild(box);
+    }
+    var line = document.createElement('div');
+    line.style.cssText = 'margin-top:8px;padding-top:8px;border-top:1px solid #4a2028;';
+    line.textContent = msg;
+    box.appendChild(line);
+  }
+  window.addEventListener('error', function(e){
+    showFatalError((e.message||'Erreur inconnue') + (e.filename ? '\n' + e.filename.split('/').pop() + ':' + e.lineno : ''));
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    var r = e.reason;
+    showFatalError('Erreur asynchrone : ' + (r && r.message ? r.message : String(r)));
+  });
+})();
+</script>
 <div id="stage">
   <div class="statusbar">
     <button class="home-btn" onclick="goHome()" title="Accueil">⌂</button>
@@ -309,13 +337,19 @@ const DEFAULT_PHRASES = {
 const DEFAULT_ADMIN_CODE = '4800';
 const DEFAULT_ROUNDS = 6;
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+/* ============================================================================
+   STOCKAGE EN LIGNE (OPTIONNEL) — Firebase Firestore
+   ----------------------------------------------------------------------------
+   Par défaut (FIREBASE_CONFIG = null), l'appli utilise le stockage fourni par
+   l'aperçu Claude (window.storage) : pratique pour tester, mais limité à la
+   session en cours et à cet onglet.
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
+   Pour une vraie appli EN LIGNE, avec sauvegarde permanente entre sessions et
+   entre appareils : crée un projet Firebase gratuit (voir le guide fourni),
+   colle ta configuration ci-dessous, puis héberge ce fichier HTML n'importe où
+   (Netlify, Firebase Hosting, etc.). Rien d'autre à changer dans le code.
+   ============================================================================ */
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyA36SNBdaTM3c51yfL36SbZOl7C6XWP9FE",
   authDomain: "avant-denvoyer.firebaseapp.com",
   projectId: "avant-denvoyer",
@@ -323,9 +357,15 @@ const firebaseConfig = {
   messagingSenderId: "780039176961",
   appId: "1:780039176961:web:364842edcf096547131100"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+/* Exemple, une fois ton projet Firebase créé :
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSy...",
+  authDomain: "mon-projet.firebaseapp.com",
+  projectId: "mon-projet",
+  storageBucket: "mon-projet.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
+};
 */
 
 function firebaseEnabled(){ return !!FIREBASE_CONFIG; }
