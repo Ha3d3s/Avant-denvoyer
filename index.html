@@ -56,6 +56,7 @@ body{ margin:0; background:radial-gradient(circle at 50% 0%, #17151f 0%, #0A0A0E
 .cta{ margin-top:24px; border:none; border-radius:16px; padding:17px 20px; background:linear-gradient(135deg,var(--coral),var(--violet));
   color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; letter-spacing:.01em; cursor:pointer; width:100%; }
 .cta:active{transform:scale(.98);}
+.cta.ghostcta{background:var(--surface2); border:1px solid var(--line); color:var(--text); flex:0 0 auto;}
 .link-min{ margin-top:14px; background:none; border:none; color:var(--muted); font-size:12.5px; text-decoration:underline;
   cursor:pointer; text-align:center; font-family:'IBM Plex Mono',monospace; display:block; width:100%; }
 
@@ -336,7 +337,37 @@ const DEFAULT_SCENARIOS = [
    caption:'Quelqu’un a vu le dernier post de Yanis ? 💀',
    comments:[['Léa','Trop cringe'],['Noah','Il fait quoi là 😭'],['Ilan','+1'],['Zaid','+1 aussi mdrr']],
    draft:'+1, trop relou celui-là', toi:'Suivre le mouvement, un like de plus.', autre:'Se sentir visé par tout un groupe, d’un coup.',
-   reform:['Je préfère pas trop m’exprimer sur celui-là','On se calme un peu avec Yanis non ?','Bon, on parle d’autre chose ? 😅'] }
+   reform:['Je préfère pas trop m’exprimer sur celui-là','On se calme un peu avec Yanis non ?','Bon, on parle d’autre chose ? 😅'] },
+ { id:'usurpation', platform:'insta', author:'yanis.reel2', time:'20 min', icon:'🎭', grad:'linear-gradient(160deg,#6a0572,#ab47bc)',
+   caption:'Je regarde des dessins animés pour bébé avant de dormir 🍼😂',
+   comments:[['mia','Mdrrr on le savait'],['theo','Ptdrrr n’importe quoi'],['lou','😭😭 quel enfant']],
+   draft:'Mdrrr même son faux compte est plus drôle que lui', toi:'Un délire sur un faux compte, presque un jeu.', autre:'Découvrir que tout le monde rigole d’un compte créé pour l’humilier, en pensant que c’est vraiment lui.',
+   reform:['Ce compte est bizarre, quelqu’un devrait le signaler plutôt.','Je pense pas que ce soit vraiment lui, on se calme.','On devrait prévenir Yanis que quelqu’un usurpe son identité.'] },
+ { id:'photo_sans_accord', platform:'snap', author:'zoe.snaps', time:'6 min', icon:'🤳', grad:'linear-gradient(160deg,#0093E9,#80D0C7)',
+   caption:'Regardez ce qui s’est passé en sport 😭📸',
+   comments:[['nathan','MDRRR NON'],['ambre','Elle sait pas qu’on l’a prise en photo 💀'],['ilyes','Faut vraiment lui montrer']],
+   draft:'Faut que je lui envoie direct 😂', toi:'Un fou rire à partager, sans y penser.', autre:'Une photo d’elle, prise sans qu’elle le sache, qui tourne déjà partout.',
+   reform:['Je devrais peut-être lui demander avant de la partager plus loin.','Je supprime, ça devait rester entre nous.','Je vais lui dire qu’il y a une photo d’elle qui circule, pour qu’elle soit au courant.'] },
+ { id:'rumeur', platform:'fb', author:'Dans le groupe classe', time:'15 min', icon:'🗣️', grad:'linear-gradient(160deg,#f857a6,#ff5858)',
+   caption:'Il paraît que Sarah a triché à son contrôle... 👀',
+   comments:[['Enzo','Ah bon ?? Qui a dit ça'],['Lina','J’ai entendu pareil'],['Max','Grave, ça se voyait']],
+   draft:'Ouais moi aussi on me l’a dit, ça doit être vrai', toi:'Répéter ce que tout le monde dit déjà.', autre:'Une rumeur non confirmée qui devient "vraie" juste parce que tout le monde la répète.',
+   reform:['Je sais pas si c’est vrai, on devrait pas la relayer sans être sûrs.','Perso je préfère pas donner mon avis là-dessus.','Ça me semble être une rumeur, on devrait vérifier avant de dire des choses comme ça.'] },
+ { id:'exclusion_groupe', platform:'snap', author:'Groupe "Sortie samedi"', time:'3 min', icon:'🚪', grad:'linear-gradient(160deg,#485563,#29323c)',
+   caption:'On a retiré quelqu’un du groupe, vous avez vu ? 😅',
+   comments:[['tom','Ah enfin, elle parlait trop'],['maya','Bon débarras franchement'],['nas','😂😂']],
+   draft:'Ouais franchement on est mieux sans elle', toi:'Suivre le mouvement, sans vraiment y réfléchir.', autre:'Réaliser qu’on a été exclue d’un groupe, et que tout le monde s’en réjouit ouvertement.',
+   reform:['Je préfère pas commenter ça publiquement.','On pourrait peut-être lui demander ce qui s’est passé avant de juger.','Je trouve ça un peu dur quand même, on devrait faire attention.'] },
+ { id:'sondage_humiliant', platform:'insta', author:'story.classe', time:'1 h', icon:'📊', grad:'linear-gradient(160deg,#fc4a1a,#f7b733)',
+   caption:'Sondage du jour : qui est le plus relou de la classe ? 🤔',
+   comments:[['ines','Facile, on sait tous qui'],['sam','😂😂😂 evidemment'],['lea','+1000']],
+   draft:'Bah on sait tous qui c’est, pas la peine de voter', toi:'Une blague de sondage, comme tout le monde.', autre:'Voir son nom revenir sans arrêt dans un vote humiliant, organisé par toute la classe.',
+   reform:['Ce genre de sondage n’est pas cool pour la personne visée.','Je préfère pas participer à ça.','On devrait arrêter ce sondage, ça peut vraiment blesser quelqu’un.'] },
+ { id:'defi_pression', platform:'tiktok', author:'clan_defis', time:'25 min', icon:'🎥', grad:'linear-gradient(160deg,#42275a,#734b6d)',
+   caption:'Nouveau défi : filme quelqu’un qui trébuche sans qu’il le sache 🎥😂',
+   comments:[['ryan','Direct je le fais à quelqu’un'],['eva','Trop drôle ce défi'],['noe','Qui on filme en premier 👀']],
+   draft:'Moi je sais déjà sur qui je vais le faire 😏', toi:'Participer à un défi comme tout le monde, sans réfléchir à la cible.', autre:'Devenir, sans le savoir, la cible choisie pour amuser toute une classe.',
+   reform:['Ce genre de défi peut vraiment blesser quelqu’un, je passe mon tour.','Je préfère ne pas filmer quelqu’un sans qu’il le sache.','Ce défi n’est pas cool, on devrait proposer autre chose.'] }
 ];
 
 const DEFAULT_PHRASES = {
@@ -1196,7 +1227,26 @@ async function fillPosts(c){
     html += `<div class="${isWarn?'gstat-note':'set-ok'}" style="margin-bottom:12px; ${isWarn?'color:var(--amber);':''}">${S.postSavedMsg}</div>`;
     S.postSavedMsg='';
   }
-  html += `<button class="cta" style="margin-bottom:16px;" onclick="openNewPost()">+ Nouveau post</button>`;
+  html += `
+    <div style="display:flex; gap:10px; margin-bottom:14px;">
+      <button class="cta" style="margin-top:0;" onclick="openNewPost()">+ Nouveau post</button>
+      <button class="cta ghostcta" style="margin-top:0;" onclick="toggleImportPanel()">📥 Importer</button>
+    </div>
+  `;
+  if(S.showImportPanel){
+    html += `
+      <div class="set-block">
+        <div class="set-title">Importer des posts (JSON)</div>
+        <p class="gstat-note" style="margin-bottom:10px;">Colle ici un tableau JSON de posts (comme celui que je peux te fournir). Les posts sont ajoutés à ta bibliothèque actuelle — rien n'est supprimé. Un post avec le même identifiant qu'un post existant le remplace.</p>
+        <textarea class="ed-textarea" id="importJsonText" rows="6" placeholder='[ { "platform":"insta", "author":"...", "caption":"...", "draft":"...", "toi":"...", "autre":"...", "comments":[["auteur","texte"]], "reform":["...","...","..."] } ]'></textarea>
+        <div class="ed-actions">
+          <button class="set-btn" style="background:var(--surface3); color:var(--text);" onclick="toggleImportPanel()">Annuler</button>
+          <button class="cta" onclick="importPostsJson()">Importer</button>
+        </div>
+        ${S.importMsg ? `<div class="set-ok" style="margin-top:10px;">${S.importMsg}</div>` : ''}
+      </div>
+    `;
+  }
   if(!ALL_SCENARIOS.length) html += `<p class="gstat-note">Aucun post pour l’instant.</p>`;
   ALL_SCENARIOS.forEach(s=>{
     const plat = PLATFORMS[s.platform] || PLATFORMS.insta;
@@ -1217,6 +1267,44 @@ async function fillPosts(c){
       </div>`;
   });
   c.innerHTML = html;
+}
+
+function toggleImportPanel(){ S.showImportPanel = !S.showImportPanel; S.importMsg=''; render(); }
+
+async function importPostsJson(){
+  const raw = document.getElementById('importJsonText').value.trim();
+  if(!raw){ S.importMsg = '⚠️ Colle d’abord du JSON dans la zone de texte.'; render(); return; }
+  let arr;
+  try{ arr = JSON.parse(raw); }
+  catch(e){ S.importMsg = '⚠️ JSON invalide : ' + e.message; render(); return; }
+  if(!Array.isArray(arr)){ S.importMsg = '⚠️ Le JSON doit être un tableau de posts (commence par [ ).'; render(); return; }
+
+  let added = 0, updated = 0, skipped = 0;
+  arr.forEach((item, i)=>{
+    if(!item || !item.caption || !item.draft || !Array.isArray(item.reform) || !item.reform.length){ skipped++; return; }
+    const id = item.id || ('custom_' + Date.now() + '_' + i);
+    const platform = ['insta','tiktok','snap','fb'].includes(item.platform) ? item.platform : 'insta';
+    const icon = item.icon || {insta:'📸', tiktok:'🎬', snap:'👻', fb:'📰'}[platform];
+    const grad = item.grad || 'linear-gradient(160deg,#3a3a46,#22222b)';
+    const scenarioObj = {
+      id, platform,
+      author: item.author || 'anonyme',
+      time: item.time || 'à l’instant',
+      caption: item.caption, draft: item.draft,
+      toi: item.toi || 'Un message envoyé sans trop y penser.',
+      autre: item.autre || 'Un message reçu qui peut faire mal.',
+      comments: Array.isArray(item.comments) && item.comments.length ? item.comments : [['???','...']],
+      reform: item.reform, icon, grad
+    };
+    const idx = ALL_SCENARIOS.findIndex(s=>s.id===id);
+    if(idx>=0){ ALL_SCENARIOS[idx] = scenarioObj; updated++; }
+    else { ALL_SCENARIOS.push(scenarioObj); added++; }
+  });
+
+  const ok = await saveScenarios();
+  S.showImportPanel = false;
+  S.postSavedMsg = (ok ? '' : '⚠️ ') + `Import terminé : ${added} ajouté(s), ${updated} mis à jour, ${skipped} ignoré(s) (champs manquants).` + (ok ? '' : ' (sauvegarde permanente non confirmée)');
+  render();
 }
 
 async function toggleScenarioActive(id, checked){
